@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resume</title>
+  <title>Knowledge Base</title>
 
   <!-- GitHub Dark Markdown CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown-dark.min.css">
@@ -43,8 +43,7 @@
 </head>
 <body>
 
-  <!-- Rendered Resume Container -->
-  <div id="resume" class="markdown-body"></div>
+  <div id="knowledge-base" class="markdown-body"></div>
 
   <!-- Marked.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -58,7 +57,7 @@ Welcome to my personal database of notes and engineering practices.
 
 *Last updated: 2026*`;
 
-    document.getElementById('resume').innerHTML = marked.parse(markdownIndex);
+    document.getElementById('knowledge-base').innerHTML = marked.parse(markdownIndex);
   </script>
 
 </body>
