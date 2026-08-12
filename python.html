@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python WASM Studio</title>
+  
+  <!-- CodeMirror CSS & JS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+
+  <!-- Pyodide WASM Runtime -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+
+  <style>
+    :root {
+      --bg: #1e1e2e;
+      --panel: #181825;
+      --border: #313244;
+      --accent: #89b4fa;
+      --accent-green: #a6e3a1;
+      --text: #cdd6f4;
+      --subtext: #a6adc8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand { font-size: 1.1rem; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 0.5rem; }
+    .status-badge { font-size: 0.75rem; padding: 0.2rem 0.5rem; background: var(--border); border-radius: 4px; color: var(--subtext); }
+
+    .main-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Editor Pane */
+    .editor-pane {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+    }
+
+    /* Output & Package Manager Pane */
+    .side-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+    }
+
+    .pane-header {
+      background: var(--border);
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--subtext);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .CodeMirror {
+      height: 100% !important;
+      font-size: 14px;
+      font-family: 'Fira Code', monospace, sans-serif;
+    }
+
+    /* Package Manager Toolbar */
+    .package-toolbar {
+      padding: 0.75rem 1rem;
+      background: #11111b;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus { border-color: var(--accent); }
+
+    button {
+      background: var(--accent);
+      color: #11111b;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover:not(:disabled) { opacity: 0.9; }
+    button:disabled { background: #585b70; cursor: not-allowed; }
+
+    #run-btn {
+      background: var(--accent-green);
+      padding: 0.5rem 1.25rem;
+      font-size: 0.9rem;
+    }
+
+    /* Output Console */
+    #console-output {
+      flex: 1;
+      padding: 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      color: var(--accent-green);
+      line-height: 1.5;
+    }
+
+    .installed-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tag {
+      background: #313244;
+      color: var(--accent);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      🐍 Python WASM Studio
+      <span id="status-badge" class="status-badge">Initializing Runtime...</span>
+    </div>
+    <button id="run-btn" disabled>▶ Run Code</button>
+  </header>
+
+  <div class="main-layout">
+    <!-- Left: Code Editor -->
+    <div class="editor-pane">
+      <div class="pane-header">EDITOR (PYTHON 3.12 WASM)</div>
+      <textarea id="code-editor"># Install packages on the right pane or load them via micropip!
+import micropip
+
+async function main():
+    # Example using installed package
+    import cowsay
+    cowsay.cow("Running Python natively inside your browser!")
+
+await main()
+</textarea>
+    </div>
+
+    <!-- Right: Packages & Output -->
+    <div class="side-pane">
+      <div class="pane-header">PACKAGE MANAGER (MICROPIP / PYPI)</div>
+      <div class="package-toolbar">
+        <input type="text" id="pkg-input" placeholder="Enter package (e.g. cowsay, numpy, requests)...">
+        <button id="install-btn" disabled>Install Package</button>
+      </div>
+      <div class="installed-tags" id="installed-list">
+        <span style="font-size: 0.75rem; color: var(--subtext)">Installed packages will appear here</span>
+      </div>
+
+      <div class="pane-header">TERMINAL / OUTPUT</div>
+      <pre id="console-output">Loading Pyodide WebAssembly runtime into memory...</pre>
+    </div>
+  </div>
+
+  <script>
+    const outputEl = document.getElementById('console-output');
+    const runBtn = document.getElementById('run-btn');
+    const installBtn = document.getElementById('install-btn');
+    const pkgInput = document.getElementById('pkg-input');
+    const installedList = document.getElementById('installed-list');
+    const statusBadge = document.getElementById('status-badge');
+
+    // 1. Initialize CodeMirror
+    const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+      mode: 'python',
+      theme: 'dracula',
+      lineNumbers: true,
+      indentUnit: 4,
+      tabSize: 4,
+      lineWrapping: true
+    });
+
+    let pyodide = null;
+    let micropip = null;
+    const installedPackages = new Set(['micropip']);
+
+    // 2. Initialize Pyodide WASM Runtime
+    async function initPlatform() {
+      try {
+        pyodide = await loadPyodide();
+
+        // Standard Output Redirection
+        pyodide.setStdout({
+          batched: (text) => {
+            outputEl.innerText += text + "\n";
+            outputEl.scrollTop = outputEl.scrollHeight;
+          }
+        });
+
+        // Load micropip package manager
+        await pyodide.loadPackage("micropip");
+        micropip = pyodide.pyimport("micropip");
+
+        // Automatically pre-install 'cowsay' for demo code
+        await micropip.install("cowsay");
+        installedPackages.add("cowsay");
+        renderPackageTags();
+
+        // UI Ready state
+        statusBadge.innerText = "WASM Ready";
+        statusBadge.style.color = "#a6e3a1";
+        outputEl.innerText = "Python WASM Runtime Ready.\nClick 'Run Code' to execute your script.\n";
+        runBtn.disabled = false;
+        installBtn.disabled = false;
+      } catch (err) {
+        statusBadge.innerText = "Load Failed";
+        statusBadge.style.color = "#f38ba8";
+        outputEl.innerText = "Fatal Error Initializing WASM Runtime:\n" + err;
+      }
+    }
+
+    // 3. Package Installation Handler
+    async function installPackage(pkgName) {
+      if (!pkgName) return;
+      
+      const cleanName = pkgName.trim().toLowerCase();
+      installBtn.disabled = true;
+      outputEl.innerText += `\n[pip] Fetching and installing '${cleanName}'...\n`;
+
+      try {
+        // Try micropip installation first (pure python PyPI packages)
+        await micropip.install(cleanName, keep_going=true);
+        installedPackages.add(cleanName);
+        renderPackageTags();
+        outputEl.innerText += `[pip] Successfully installed '${cleanName}'!\n`;
+      } catch (err) {
+        // Fallback to Pyodide C-extension pre-built binaries
+        try {
+          await pyodide.loadPackage(cleanName);
+          installedPackages.add(cleanName);
+          renderPackageTags();
+          outputEl.innerText += `[pyodide] Loaded C-extension '${cleanName}' binary successfully!\n`;
+        } catch (binaryErr) {
+          outputEl.innerText += `[error] Failed to install '${cleanName}': ${err.message}\n`;
+        }
+      } finally {
+        installBtn.disabled = false;
+        pkgInput.value = "";
+      }
+    }
+
+    function renderPackageTags() {
+      installedList.innerHTML = Array.from(installedPackages)
+        .map(pkg => `<span class="tag">📦 ${pkg}</span>`)
+        .join('');
+    }
+
+    // 4. Execution Engine
+    runBtn.addEventListener('click', async () => {
+      outputEl.innerText = ""; // Clear log
+      const code = editor.getValue();
+
+      try {
+        // Execute python code asynchronously (supports top-level await)
+        await pyodide.runPythonAsync(code);
+      } catch (err) {
+        outputEl.innerText += `\nTraceback (most recent call last):\n${err}`;
+      }
+    });
+
+    installBtn.addEventListener('click', () => installPackage(pkgInput.value));
+    pkgInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') installPackage(pkgInput.value);
+    });
+
+    initPlatform();
+  </script>
+</body>
+</html>
