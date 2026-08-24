@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQLite WASM + Monaco Editor</title>
+  
+  <!-- SQLite WASM CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  
+  <!-- Monaco Editor Loader CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.38.0/min/vs/loader.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --border: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success: #10b981;
+      --code-font: 'Consolas', 'Fira Code', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    aside {
+      width: 320px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-actions {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .table-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .table-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    .table-title {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .column-list {
+      font-family: var(--code-font);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .editor-container {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      height: 50%;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    #editor {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Controls */
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: var(--accent-hover); }
+    button.btn-sm { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+    button.btn-danger { background: var(--danger); }
+    button.btn-danger:hover { background: var(--danger-hover); }
+    button.btn-full { width: 100%; }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button.btn-secondary:hover { background: #475569; }
+
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      padding: 0.45rem;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    /* Results */
+    .results-container {
+      flex: 1;
+      padding: 1rem;
+      overflow: auto;
+    }
+
+    .meta-bar {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      background: rgba(255,255,255,0.02);
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    .meta-bar .badge {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .result-header-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 0.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+
+    th { background: var(--panel); font-weight: 600; }
+
+    .error {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.1);
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--danger);
+    }
+
+    .hint { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-content {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 560px;
+      max-width: 90%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem;
+      gap: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    .modal-body {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .column-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="sidebar-header">
+      <span style="font-weight: bold;">Schema Viewer</span>
+      <div style="display: flex; gap: 0.25rem;">
+        <button class="btn-sm btn-secondary" onclick="exportDatabase()" title="Download binary .sqlite file">💾 Save DB</button>
+        <button class="btn-sm btn-secondary" onclick="refreshSchema()">Refresh</button>
+      </div>
+    </div>
+    <div class="sidebar-actions">
+      <button class="btn-full" onclick="openCreateTableModal()">+ Create New Table</button>
+      <button class="btn-full btn-secondary" onclick="openBulkInsertModal()">⚡ Bulk Insert Generator</button>
+    </div>
+    <div class="table-list" id="schemaView"></div>
+  </aside>
+
+  <main>
+    <div class="editor-container">
+      <div id="editor"></div>
+      <div class="toolbar">
+        <span class="hint">Shortcut: <strong>Ctrl + Enter</strong> to execute</span>
+        <button onclick="executeSQL()">Run SQL Query</button>
+      </div>
+    </div>
+
+    <div class="results-container" id="outputArea">
+      <p class="hint">Results will be displayed here...</p>
+    </div>
+  </main>
+
+  <!-- Create Table Modal -->
+  <div class="modal-overlay" id="createTableModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Table</h3>
+        <button class="btn-sm btn-secondary" onclick="closeCreateTableModal()">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <div>
+          <label class="hint" style="display:block; margin-bottom: 0.25rem;">Table Name</label>
+          <input type="text" id="modalTableName" placeholder="e.g. products" style="width: 100%;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+          <label class="hint">Columns Definition</label>
+          <button class="btn-sm btn-secondary" onclick="addColumnRow()">+ Add Column</button>
+        </div>
+
+        <div id="modalColumnsContainer" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeCreateTableModal()">Cancel</button>
+        <button onclick="buildAndCreateTable()">Create Table</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Insert Modal -->
+  <div class="modal-overlay" id="bulkInsertModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Bulk Insert Data Generator</h3>
+        <button class="btn-sm btn-secondary" onclick="closeBulkInsertModal()">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <div style="display: flex; gap: 1rem;">
+          <div style="flex: 2;">
+            <label class="hint" style="display:block; margin-bottom: 0.25rem;">Target Table</label>
+            <select id="bulkTableName" style="width: 100%;" onchange="renderBulkColumnMappers()"></select>
+          </div>
+          <div style="flex: 1;">
+            <label class="hint" style="display:block; margin-bottom: 0.25rem;">Row Count</label>
+            <input type="number" id="bulkRowCount" value="10" min="1" max="500" style="width: 100%;">
+          </div>
+        </div>
+
+        <div style="margin-top: 0.5rem;">
+          <label class="hint" style="display:block; margin-bottom: 0.5rem;">Column Data Generators</label>
+          <div id="bulkColumnsContainer" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeBulkInsertModal()">Cancel</button>
+        <button onclick="generateAndRunBulkInsert()">Generate & Run Inserts</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let db = null;
+    let editor = null;
+    let lastQueryResults = [];
+
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.38.0/min/vs' }});
+    
+    require(['vs/editor/editor.main'], async function () {
+      editor = monaco.editor.create(document.getElementById('editor'), {
+        value: "SELECT * FROM users;",
+        language: 'sql',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        minimap: { enabled: false },
+        fontSize: 14,
+        suggestOnTriggerCharacters: true
+      });
+
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function() {
+        executeSQL();
+      });
+
+      monaco.languages.registerCompletionItemProvider('sql', {
+        provideCompletionItems: (model, position) => {
+          const word = model.getWordUntilPosition(position);
+          const range = {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn
+          };
+
+          const suggestions = [];
+          const keywords = [
+            'SELECT', 'FROM', 'WHERE', 'INSERT INTO', 'UPDATE', 'DELETE', 
+            'CREATE TABLE', 'DROP TABLE', 'JOIN', 'LEFT JOIN', 'INNER JOIN', 
+            'GROUP BY', 'ORDER BY', 'HAVING', 'LIMIT', 'VALUES', 'INTEGER', 
+            'TEXT', 'REAL', 'PRIMARY KEY', 'AUTOINCREMENT'
+          ];
+          
+          keywords.forEach(kw => {
+            suggestions.push({
+              label: kw,
+              kind: monaco.languages.CompletionItemKind.Keyword,
+              insertText: kw,
+              range: range
+            });
+          });
+
+          if (db) {
+            try {
+              const tablesRes = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+              if (tablesRes.length > 0) {
+                const tables = tablesRes[0].values.flat();
+                tables.forEach(tableName => {
+                  suggestions.push({
+                    label: tableName,
+                    kind: monaco.languages.CompletionItemKind.Class,
+                    detail: 'Table',
+                    insertText: tableName,
+                    range: range
+                  });
+
+                  const colsRes = db.exec(`PRAGMA table_info("${tableName}");`);
+                  if (colsRes.length > 0) {
+                    colsRes[0].values.forEach(col => {
+                      suggestions.push({
+                        label: col[1],
+                        kind: monaco.languages.CompletionItemKind.Field,
+                        detail: `Column (${tableName} - ${col[2]})`,
+                        insertText: col[1],
+                        range: range
+                      });
+                    });
+                  }
+                });
+              }
+            } catch(e) {}
+          }
+
+          return { suggestions: suggestions };
+        }
+      });
+
+      const sqlPromise = initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+      });
+      const SQL = await sqlPromise;
+      db = new SQL.Database();
+      
+      db.run(`
+        CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT);
+        INSERT INTO users (name, email) VALUES ('Alice', 'alice@example.com'), ('Bob', 'bob@example.com');
+      `);
+
+      refreshSchema();
+      executeSQL();
+    });
+
+    function executeSQL() {
+      if (!editor || !db) return;
+      const query = editor.getValue().trim();
+      const output = document.getElementById('outputArea');
+      output.innerHTML = "";
+      lastQueryResults = [];
+
+      if (!query) return;
+
+      const startTime = performance.now();
+      const executedAt = new Date().toLocaleString();
+
+      try {
+        const results = db.exec(query);
+        const endTime = performance.now();
+        const duration = (endTime - startTime).toFixed(2);
+
+        lastQueryResults = results;
+        refreshSchema();
+
+        const metaBar = document.createElement('div');
+        metaBar.className = 'meta-bar';
+        metaBar.innerHTML = `
+          <span>Execution Time: <span class="badge">${duration} ms</span></span>
+          <span>Timestamp: <strong>${executedAt}</strong></span>
+        `;
+        output.appendChild(metaBar);
+
+        if (results.length === 0) {
+          const hint = document.createElement('p');
+          hint.className = 'hint';
+          hint.textContent = 'Query executed successfully. (No rows returned)';
+          output.appendChild(hint);
+          return;
+        }
+
+        const actionRow = document.createElement('div');
+        actionRow.className = 'result-header-actions';
+        actionRow.innerHTML = `<button class="btn-sm btn-secondary" onclick="exportResultsToCSV()">📥 Export CSV</button>`;
+        output.appendChild(actionRow);
+
+        results.forEach(res => {
+          const table = document.createElement('table');
+          const thead = document.createElement('thead');
+          const headerRow = document.createElement('tr');
+          
+          res.columns.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            headerRow.appendChild(th);
+          });
+          thead.appendChild(headerRow);
+          table.appendChild(thead);
+
+          const tbody = document.createElement('tbody');
+          res.values.forEach(row => {
+            const tr = document.createElement('tr');
+            row.forEach(val => {
+              const td = document.createElement('td');
+              td.textContent = val !== null ? val : 'NULL';
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          });
+          table.appendChild(tbody);
+          output.appendChild(table);
+        });
+
+      } catch (err) {
+        const endTime = performance.now();
+        const duration = (endTime - startTime).toFixed(2);
+
+        const metaBar = document.createElement('div');
+        metaBar.className = 'meta-bar';
+        metaBar.innerHTML = `
+          <span>Execution Time: <span class="badge" style="color: var(--danger);">${duration} ms</span></span>
+          <span>Timestamp: <strong>${executedAt}</strong></span>
+        `;
+        output.appendChild(metaBar);
+
+        const errDiv = document.createElement('div');
+        errDiv.className = 'error';
+        errDiv.innerHTML = `<strong>Execution Error:</strong> ${err.message}`;
+        output.appendChild(errDiv);
+      }
+    }
+
+    /* Database File Export (.sqlite) */
+    function exportDatabase() {
+      if (!db) return;
+      const data = db.export();
+      const blob = new Blob([data], { type: 'application/x-sqlite3' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `database_${Date.now()}.sqlite`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    /* CSV Results Export */
+    function exportResultsToCSV() {
+      if (!lastQueryResults || lastQueryResults.length === 0) return;
+      
+      const result = lastQueryResults[0];
+      const rows = [];
+      
+      // Escape CSV values
+      const formatCell = val => {
+        if (val === null || val === undefined) return '""';
+        const str = String(val).replace(/"/g, '""');
+        return `"${str}"`;
+      };
+
+      rows.push(result.columns.map(formatCell).join(','));
+      result.values.forEach(row => {
+        rows.push(row.map(formatCell).join(','));
+      });
+
+      const csvContent = rows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `query_result_${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function refreshSchema() {
+      const schemaView = document.getElementById('schemaView');
+      schemaView.innerHTML = "";
+
+      try {
+        const tablesRes = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+        if (tablesRes.length === 0 || tablesRes[0].values.length === 0) {
+          schemaView.innerHTML = `<p class="hint">No tables created.</p>`;
+          return;
+        }
+
+        const tables = tablesRes[0].values.flat();
+        tables.forEach(tableName => {
+          const columnsRes = db.exec(`PRAGMA table_info("${tableName}");`);
+          const columns = columnsRes[0].values.map(c => `${c[1]} <span style="opacity:0.5">(${c[2]})</span>`).join('<br>');
+
+          const item = document.createElement('div');
+          item.className = 'table-item';
+          item.innerHTML = `
+            <div class="table-title">
+              <span>${tableName}</span>
+              <button class="btn-sm btn-danger" onclick="dropTable('${tableName}')">Drop</button>
+            </div>
+            <div class="column-list">${columns}</div>
+          `;
+          schemaView.appendChild(item);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function dropTable(tableName) {
+      if (confirm(`Drop table '${tableName}'?`)) {
+        db.run(`DROP TABLE "${tableName}";`);
+        refreshSchema();
+        executeSQL();
+      }
+    }
+
+    /* Modal Controls - Create Table */
+    function openCreateTableModal() {
+      document.getElementById('modalTableName').value = '';
+      document.getElementById('modalColumnsContainer').innerHTML = '';
+      addColumnRow('id', 'INTEGER', true);
+      addColumnRow('name', 'TEXT', false);
+      document.getElementById('createTableModal').classList.add('active');
+    }
+
+    function closeCreateTableModal() {
+      document.getElementById('createTableModal').classList.remove('active');
+    }
+
+    function addColumnRow(defaultName = '', defaultType = 'TEXT', isPk = false) {
+      const container = document.getElementById('modalColumnsContainer');
+      const row = document.createElement('div');
+      row.className = 'column-row';
+      row.innerHTML = `
+        <input type="text" class="col-name" placeholder="Column Name" value="${defaultName}" style="flex: 2;">
+        <select class="col-type" style="flex: 1.5;">
+          <option value="INTEGER" ${defaultType === 'INTEGER' ? 'selected' : ''}>INTEGER</option>
+          <option value="TEXT" ${defaultType === 'TEXT' ? 'selected' : ''}>TEXT</option>
+          <option value="REAL" ${defaultType === 'REAL' ? 'selected' : ''}>REAL</option>
+          <option value="BLOB" ${defaultType === 'BLOB' ? 'selected' : ''}>BLOB</option>
+        </select>
+        <label style="font-size:0.8rem; display:flex; align-items:center; gap:0.25rem; cursor:pointer;">
+          <input type="checkbox" class="col-pk" ${isPk ? 'checked' : ''}> PK
+        </label>
+        <button class="btn-sm btn-danger" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function buildAndCreateTable() {
+      const tableName = document.getElementById('modalTableName').value.trim();
+      if (!tableName) {
+        alert("Please enter a table name.");
+        return;
+      }
+
+      const rows = document.querySelectorAll('#modalColumnsContainer .column-row');
+      if (rows.length === 0) {
+        alert("Please add at least one column.");
+        return;
+      }
+
+      const colDefs = [];
+      let hasError = false;
+
+      rows.forEach(row => {
+        const name = row.querySelector('.col-name').value.trim();
+        const type = row.querySelector('.col-type').value;
+        const isPk = row.querySelector('.col-pk').checked;
+
+        if (!name) {
+          hasError = true;
+          return;
+        }
+
+        let statement = `"${name}" ${type}`;
+        if (isPk) statement += " PRIMARY KEY";
+        colDefs.push(statement);
+      });
+
+      if (hasError || colDefs.length === 0) {
+        alert("All columns must have a valid name.");
+        return;
+      }
+
+      const sql = `CREATE TABLE "${tableName}" (${colDefs.join(', ')});`;
+
+      try {
+        db.run(sql);
+        refreshSchema();
+        closeCreateTableModal();
+      } catch (err) {
+        alert("Failed to create table: " + err.message);
+      }
+    }
+
+    /* Modal Controls - Bulk Insert Generator */
+    function openBulkInsertModal() {
+      const select = document.getElementById('bulkTableName');
+      select.innerHTML = '';
+
+      try {
+        const tablesRes = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+        if (tablesRes.length === 0 || tablesRes[0].values.length === 0) {
+          alert("Please create at least one table first.");
+          return;
+        }
+
+        const tables = tablesRes[0].values.flat();
+        tables.forEach(tableName => {
+          const opt = document.createElement('option');
+          opt.value = tableName;
+          opt.textContent = tableName;
+          select.appendChild(opt);
+        });
+
+        renderBulkColumnMappers();
+        document.getElementById('bulkInsertModal').classList.add('active');
+      } catch (e) {
+        alert("Error fetching tables: " + e.message);
+      }
+    }
+
+    function closeBulkInsertModal() {
+      document.getElementById('bulkInsertModal').classList.remove('active');
+    }
+
+    function renderBulkColumnMappers() {
+      const tableName = document.getElementById('bulkTableName').value;
+      const container = document.getElementById('bulkColumnsContainer');
+      container.innerHTML = '';
+
+      if (!tableName) return;
+
+      const colsRes = db.exec(`PRAGMA table_info("${tableName}");`);
+      if (colsRes.length === 0) return;
+
+      colsRes[0].values.forEach(col => {
+        const colName = col[1];
+        const colType = col[2].toUpperCase();
+        const isPk = col[5] === 1;
+
+        let defaultGen = 'SKIP';
+        const lower = colName.toLowerCase();
+
+        if (isPk && colType.includes('INT')) {
+          defaultGen = 'SKIP';
+        } else if (lower.includes('email')) {
+          defaultGen = 'EMAIL';
+        } else if (lower.includes('name')) {
+          defaultGen = 'NAME';
+        } else if (lower.includes('address') || lower.includes('street') || lower.includes('city')) {
+          defaultGen = 'ADDRESS';
+        } else if (lower.includes('uuid') || lower.includes('guid')) {
+          defaultGen = 'UUID';
+        } else if (lower.includes('date') || lower.includes('time') || lower.includes('created')) {
+          defaultGen = 'DATE';
+        } else if (lower.includes('is_') || lower.includes('active') || lower.includes('status') || colType.includes('BOOL')) {
+          defaultGen = 'BOOLEAN';
+        } else if (colType.includes('INT')) {
+          defaultGen = 'INT';
+        } else if (colType.includes('REAL') || colType.includes('FLOAT') || colType.includes('DECIMAL')) {
+          defaultGen = 'FLOAT';
+        } else if (colType.includes('TEXT')) {
+          defaultGen = 'TEXT';
+        }
+
+        const row = document.createElement('div');
+        row.className = 'column-row';
+        row.innerHTML = `
+          <div style="flex: 2; font-family: var(--code-font); font-size: 0.85rem;">
+            <strong>${colName}</strong> <span style="opacity: 0.5;">(${colType}${isPk ? ' PK' : ''})</span>
+          </div>
+          <select class="bulk-gen-type" data-col="${colName}" style="flex: 2;">
+            <option value="SKIP" ${defaultGen === 'SKIP' ? 'selected' : ''}>[Skip / Auto/NULL]</option>
+            <option value="NAME" ${defaultGen === 'NAME' ? 'selected' : ''}>Full Name</option>
+            <option value="EMAIL" ${defaultGen === 'EMAIL' ? 'selected' : ''}>Email Address</option>
+            <option value="ADDRESS" ${defaultGen === 'ADDRESS' ? 'selected' : ''}>Street Address</option>
+            <option value="INT" ${defaultGen === 'INT' ? 'selected' : ''}>Integer (1-1000)</option>
+            <option value="FLOAT" ${defaultGen === 'FLOAT' ? 'selected' : ''}>Float (10.00 - 500.00)</option>
+            <option value="DATE" ${defaultGen === 'DATE' ? 'selected' : ''}>Date (Past Year ISO)</option>
+            <option value="BOOLEAN" ${defaultGen === 'BOOLEAN' ? 'selected' : ''}>Boolean (0 / 1)</option>
+            <option value="UUID" ${defaultGen === 'UUID' ? 'selected' : ''}>UUID v4</option>
+            <option value="TEXT" ${defaultGen === 'TEXT' ? 'selected' : ''}>Text Sentence</option>
+          </select>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    const mockData = {
+      firstNames: ['Alice', 'Bob', 'Charlie', 'Diana', 'Ethan', 'Fiona', 'George', 'Hannah', 'Ian', 'Julia', 'Lucas', 'Mateo', 'Sofia'],
+      lastNames: ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Barbosa'],
+      domains: ['example.com', 'test.org', 'mail.com', 'dev.io'],
+      streets: ['Main St', 'Oak Ave', 'Maple Rd', 'Pine St', 'Cedar Ln', 'Park Blvd', 'Washington St'],
+      cities: ['New York', 'Austin', 'Seattle', 'Chicago', 'San Francisco', 'Miami'],
+      words: ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sqlite', 'database', 'wasm', 'fast']
+    };
+
+    function getRandomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateMockValue(type) {
+      switch (type) {
+        case 'NAME': {
+          const fn = getRandomItem(mockData.firstNames);
+          const ln = getRandomItem(mockData.lastNames);
+          return `'${fn} ${ln}'`;
+        }
+        case 'EMAIL': {
+          const fn = getRandomItem(mockData.firstNames).toLowerCase();
+          const ln = getRandomItem(mockData.lastNames).toLowerCase();
+          const dom = getRandomItem(mockData.domains);
+          const num = Math.floor(Math.random() * 99) + 1;
+          return `'${fn}.${ln}${num}@${dom}'`;
+        }
+        case 'ADDRESS': {
+          const num = Math.floor(Math.random() * 9000) + 100;
+          const street = getRandomItem(mockData.streets);
+          const city = getRandomItem(mockData.cities);
+          return `'${num} ${street}, ${city}'`;
+        }
+        case 'INT':
+          return Math.floor(Math.random() * 1000) + 1;
+        case 'FLOAT':
+          return (Math.random() * 490 + 10).toFixed(2);
+        case 'DATE': {
+          const d = new Date(Date.now() - Math.floor(Math.random() * 365 * 86400000));
+          return `'${d.toISOString().slice(0, 19).replace('T', ' ')}'`;
+        }
+        case 'BOOLEAN':
+          return Math.random() > 0.5 ? 1 : 0;
+        case 'UUID':
+          return `'${crypto.randomUUID()}'`;
+        case 'TEXT': {
+          const sentence = Array.from({length: 5}, () => getRandomItem(mockData.words)).join(' ');
+          return `'${sentence.charAt(0).toUpperCase() + sentence.slice(1)}.'`;
+        }
+        default:
+          return 'NULL';
+      }
+    }
+
+    function generateAndRunBulkInsert() {
+      const tableName = document.getElementById('bulkTableName').value;
+      const rowCount = parseInt(document.getElementById('bulkRowCount').value, 10) || 10;
+      const mappers = document.querySelectorAll('#bulkColumnsContainer .bulk-gen-type');
+
+      const activeCols = [];
+      const colGenerators = [];
+
+      mappers.forEach(select => {
+        const genType = select.value;
+        if (genType !== 'SKIP') {
+          activeCols.push(`"${select.dataset.col}"`);
+          colGenerators.push(genType);
+        }
+      });
+
+      if (activeCols.length === 0) {
+        alert("Please select at least one column to fill.");
+        return;
+      }
+
+      const rowsSQL = [];
+      for (let r = 0; r < rowCount; r++) {
+        const rowValues = colGenerators.map(type => generateMockValue(type));
+        rowsSQL.push(`(${rowValues.join(', ')})`);
+      }
+
+      const sqlQuery = `INSERT INTO "${tableName}" (${activeCols.join(', ')})\nVALUES\n  ${rowsSQL.join(',\n  ')};`;
+
+      editor.setValue(sqlQuery);
+      closeBulkInsertModal();
+      executeSQL();
+    }
+  </script>
+</body>
+</html>
