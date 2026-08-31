@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Controller</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .card {
+            background: #1e1e1e;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        button {
+            margin-top: 1.5rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:active { background-color: #0056b3; }
+        #status { margin-top: 1rem; font-size: 0.9rem; color: #888; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Phone Controller</h2>
+        <p id="status">Connecting...</p>
+        <button id="sendBtn" disabled>Send Test Action</button>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('sessionId');
+        const clientId = urlParams.get('clientId') || 'phone';
+        const statusEl = document.getElementById("status");
+        const sendBtn = document.getElementById("sendBtn");
+
+        if (!sessionId) {
+            statusEl.innerText = "Error: Missing sessionId in URL";
+            statusEl.style.color = "red";
+        } else {
+            // Connect to WebSocket
+            const wsUrl = `ws://164.152.40.198:8000/ws?sessionId=${encodeURIComponent(sessionId)}&clientId=${clientId}`;
+            const ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                statusEl.innerText = "Connected to Screen!";
+                statusEl.style.color = "#4caf50";
+                sendBtn.disabled = false;
+            };
+
+            ws.onmessage = (event) => {
+                console.log("Message from server:", event.data);
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket Error:", error);
+                statusEl.innerText = "Connection Error";
+                statusEl.style.color = "#f44336";
+            };
+
+            ws.onclose = () => {
+                statusEl.innerText = "Disconnected";
+                statusEl.style.color = "#888";
+                sendBtn.disabled = true;
+            };
+
+            // Send a sample payload when button is tapped
+            sendBtn.addEventListener('click', () => {
+                const payload = JSON.stringify({ action: "button_click", timestamp: Date.now() });
+                ws.send(payload);
+                console.log("Sent:", payload);
+            });
+        }
+    </script>
+</body>
+</html>
