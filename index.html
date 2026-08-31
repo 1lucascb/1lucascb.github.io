@@ -3,9 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>WebSocket & QR Code Connection</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        #qrcode {
+            margin: 1.5rem auto;
+            display: flex;
+            justify-content: center;
+        }
+        #status {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
+
+    <div class="container">
+        <h2>Scan to Connect</h2>
+        <div id="qrcode"></div>
+        <p id="status">Connecting to WebSocket...</p>
+    </div>
+
+    <script>
+        // Function to generate a random UUIDv4
+        function generateUUID() {
+            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
+
+        const sessionId = generateUUID();
+        const clientId = 'screen';
+        
+        // Target URL for the QR code
+        const redirectUrl = `https://1lucascb.github.io/phone?sessionId=${encodeURIComponent(sessionId)}&clientId=phone`;
+        
+        // Generate QR Code in the target element
+        new QRCode(document.getElementById("qrcode"), {
+            text: redirectUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Initialize WebSocket connection
+        const wsUrl = `ws://164.152.40.198:8000/ws?sessionId=${encodeURIComponent(sessionId)}&clientId=${clientId}`;
+        const ws = new WebSocket(wsUrl);
+
+        const statusEl = document.getElementById("status");
+
+        ws.onopen = () => {
+            statusEl.innerText = "Status: Connected to WebSocket";
+            statusEl.style.color = "green";
+        };
+
+        ws.onmessage = (event) => {
+            console.log("Message received from server:", event.data);
+        };
+
+        ws.onerror = (error) => {
+            console.error("WebSocket Error:", error);
+            statusEl.innerText = "Status: Connection Error";
+            statusEl.style.color = "red";
+        };
+
+        ws.onclose = () => {
+            statusEl.innerText = "Status: Connection Closed";
+            statusEl.style.color = "gray";
+        };
+    </script>
 </body>
 </html>
