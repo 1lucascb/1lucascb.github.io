@@ -59,7 +59,7 @@
             statusEl.style.color = "red";
         } else {
             // Connect to WebSocket
-            const wsUrl = `ws://164.152.40.198:8000/ws?sessionId=${encodeURIComponent(sessionId)}&clientId=${clientId}`;
+            const wsUrl = `wss://ws.lcb936.com/ws?sessionId=${encodeURIComponent(sessionId)}&clientId=${clientId}`;
             const ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
