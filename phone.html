@@ -1,96 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phone Controller</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Controller</title>
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        html,
         body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d1117;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+        }
+
+        /* ---------------------------------------------- */
+        /* Rotate prompt — shown while device is portrait  */
+        /* or before the user has tapped to start          */
+        /* ---------------------------------------------- */
+        #start-screen {
+            position: fixed;
+            inset: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            background-color: #121212;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
+            justify-content: center;
+            gap: 20px;
+            padding: 24px;
             text-align: center;
+            color: #c9d1d9;
+            z-index: 100;
         }
-        .card {
-            background: #1e1e1e;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+
+        #start-screen .icon {
+            font-size: 64px;
+            animation: rotate-hint 1.8s ease-in-out infinite;
         }
-        button {
-            margin-top: 1.5rem;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
+
+        @keyframes rotate-hint {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(-90deg);
+            }
+        }
+
+        #start-screen h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        #start-screen p {
+            font-size: 14px;
+            color: #8b949e;
+            margin: 0;
+            max-width: 320px;
+            line-height: 1.5;
+        }
+
+        #start-btn {
+            margin-top: 12px;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0d1117;
+            background-color: #58a6ff;
             border: none;
-            border-radius: 6px;
-            background-color: #007bff;
-            color: white;
+            border-radius: 10px;
             cursor: pointer;
         }
-        button:active { background-color: #0056b3; }
-        #status { margin-top: 1rem; font-size: 0.9rem; color: #888; }
+
+        #start-btn:active {
+            filter: brightness(0.9);
+        }
+
+        #status-pill {
+            position: fixed;
+            top: max(12px, env(safe-area-inset-top));
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            z-index: 200;
+            transition: all 0.2s ease;
+        }
+
+        #status-pill.connected {
+            color: #3fb950;
+            border-color: #3fb950;
+        }
+
+        #status-pill.error {
+            color: #f85149;
+            border-color: #f85149;
+        }
+
+        /* ---------------------------------------------- */
+        /* Controller layout (landscape)                   */
+        /* ---------------------------------------------- */
+        #controller {
+            display: none;
+            position: fixed;
+            inset: 0;
+            padding: max(16px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(28px, env(safe-area-inset-left));
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* D-Pad */
+        #dpad {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            flex-shrink: 0;
+        }
+
+        .dpad-btn {
+            position: absolute;
+            width: 72px;
+            height: 72px;
+            background-color: #21262d;
+            border: 2px solid #30363d;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #c9d1d9;
+            transition: background-color 0.08s ease, border-color 0.08s ease;
+        }
+
+        .dpad-btn.active {
+            background-color: #388bfd;
+            border-color: #58a6ff;
+            color: #ffffff;
+        }
+
+        #btn-up {
+            top: 0;
+            left: 74px;
+        }
+
+        #btn-down {
+            bottom: 0;
+            left: 74px;
+        }
+
+        #btn-left {
+            top: 74px;
+            left: 0;
+        }
+
+        #btn-right {
+            top: 74px;
+            right: 0;
+        }
+
+        /* Shoot button */
+        #shoot-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        #btn-shoot {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ff8a80, #e3453a 70%);
+            border: 3px solid #ff9d94;
+            box-shadow: 0 6px 0 #a5291f, 0 8px 14px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            transform: translateY(0);
+            transition: transform 0.06s ease, box-shadow 0.06s ease;
+        }
+
+        #btn-shoot.active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #a5291f, 0 3px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        #shoot-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #8b949e;
+        }
+
+        /* Center readout, purely informational */
+        #center-info {
+            position: absolute;
+            left: 50%;
+            top: max(16px, env(safe-area-inset-top));
+            transform: translateX(-50%);
+            text-align: center;
+            color: #484f58;
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
     </style>
 </head>
+
 <body>
 
-    <div class="card">
-        <h2>Phone Controller</h2>
-        <p id="status">Connecting...</p>
-        <button id="sendBtn" disabled>Send Test Action</button>
+    <div id="status-pill">Connecting…</div>
+
+    <div id="start-screen">
+        <div class="icon">📱</div>
+        <h1>Rotate your phone</h1>
+        <p>This controller works in landscape mode. Turn your phone sideways, then tap start.</p>
+        <button id="start-btn">Start Controller</button>
+    </div>
+
+    <div id="center-info">Ship Remote</div>
+
+    <div id="controller">
+        <div id="dpad">
+            <div class="dpad-btn" id="btn-up">▲</div>
+            <div class="dpad-btn" id="btn-left">◀</div>
+            <div class="dpad-btn" id="btn-right">▶</div>
+            <div class="dpad-btn" id="btn-down">▼</div>
+        </div>
+
+        <div id="shoot-wrap">
+            <div id="btn-shoot">🔥</div>
+            <div id="shoot-label">Shoot</div>
+        </div>
     </div>
 
     <script>
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const sessionId = urlParams.get('sessionId');
-        const clientId = urlParams.get('clientId') || 'phone';
-        const statusEl = document.getElementById("status");
-        const sendBtn = document.getElementById("sendBtn");
+        // --------------------------------------------------
+        // 1. Read sessionId / clientId from query params
+        // --------------------------------------------------
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('sessionId');
+        const clientId = params.get('clientId') || 'phone';
+
+        const statusPill = document.getElementById('status-pill');
 
         if (!sessionId) {
-            statusEl.innerText = "Error: Missing sessionId in URL";
-            statusEl.style.color = "red";
-        } else {
-            // Connect to WebSocket
-            const wsUrl = `wss://ws.lcb936.com/ws?sessionId=${encodeURIComponent(sessionId)}&clientId=${clientId}`;
-            const ws = new WebSocket(wsUrl);
-
-            ws.onopen = () => {
-                statusEl.innerText = "Connected to Screen!";
-                statusEl.style.color = "#4caf50";
-                sendBtn.disabled = false;
-            };
-
-            ws.onmessage = (event) => {
-                console.log("Message from server:", event.data);
-            };
-
-            ws.onerror = (error) => {
-                console.error("WebSocket Error:", error);
-                statusEl.innerText = "Connection Error";
-                statusEl.style.color = "#f44336";
-            };
-
-            ws.onclose = () => {
-                statusEl.innerText = "Disconnected";
-                statusEl.style.color = "#888";
-                sendBtn.disabled = true;
-            };
-
-            // Send a sample payload when button is tapped
-            sendBtn.addEventListener('click', () => {
-                const payload = JSON.stringify({ action: "button_click", timestamp: Date.now() });
-                ws.send(payload);
-                console.log("Sent:", payload);
-            });
+            statusPill.textContent = 'Missing sessionId';
+            statusPill.classList.add('error');
         }
+
+        // --------------------------------------------------
+        // 2. WebSocket connection
+        // --------------------------------------------------
+        let socket = null;
+        let reconnectTimer = null;
+
+        function connect() {
+            if (!sessionId) return;
+
+            const socketUrl = `wss://ws.lcb936.com/ws?sessionId=${encodeURIComponent(sessionId)}&clientId=${encodeURIComponent(clientId)}`;
+            socket = new WebSocket(socketUrl);
+
+            socket.onopen = () => {
+                console.log('WebSocket connected:', socketUrl);
+                statusPill.textContent = 'Connected';
+                statusPill.classList.add('connected');
+                statusPill.classList.remove('error');
+
+                // Trigger the game to start on the screen side.
+                socket.send('connected');
+            };
+
+            socket.onmessage = (event) => {
+                console.log('Message from server:', event.data);
+            };
+
+            socket.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                statusPill.textContent = 'Connection error';
+                statusPill.classList.add('error');
+                statusPill.classList.remove('connected');
+            };
+
+            socket.onclose = () => {
+                console.log('WebSocket connection closed.');
+                statusPill.textContent = 'Disconnected — retrying…';
+                statusPill.classList.remove('connected');
+                clearTimeout(reconnectTimer);
+                reconnectTimer = setTimeout(connect, 1500);
+            };
+        }
+
+        // --------------------------------------------------
+        // 3. Input state — matches the screen-side contract:
+        // { type: "input", move: "left"|"right"|"up"|"down"|"none", shoot: bool }
+        // --------------------------------------------------
+        const state = {
+            move: 'none',
+            shoot: false
+        };
+
+        // Track which directions are physically held, since more than one
+        // D-pad button can be pressed at once (finger sliding between them).
+        const heldDirections = new Set();
+
+        function resolveMove() {
+            // Priority order when multiple directions are held: last wins isn't
+            // reliable with touch, so just pick a stable priority.
+            if (heldDirections.has('up')) return 'up';
+            if (heldDirections.has('down')) return 'down';
+            if (heldDirections.has('left')) return 'left';
+            if (heldDirections.has('right')) return 'right';
+            return 'none';
+        }
+
+        let lastSentMove = null;
+        let lastSentShoot = null;
+
+        function sendState() {
+            const move = resolveMove();
+            const shoot = state.shoot;
+
+            // Only send when something actually changed — avoids flooding
+            // the socket on every touchmove.
+            if (move === lastSentMove && shoot === lastSentShoot) return;
+
+            lastSentMove = move;
+            lastSentShoot = shoot;
+
+            if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+            socket.send(JSON.stringify({
+                type: 'input',
+                move,
+                shoot
+            }));
+        }
+
+        // --------------------------------------------------
+        // 4. Button wiring — touch + mouse (for desktop testing)
+        // --------------------------------------------------
+        function wireButton(el, onDown, onUp) {
+            const down = (e) => {
+                e.preventDefault();
+                el.classList.add('active');
+                onDown();
+                sendState();
+            };
+            const up = (e) => {
+                e.preventDefault();
+                el.classList.remove('active');
+                onUp();
+                sendState();
+            };
+
+            el.addEventListener('touchstart', down, { passive: false });
+            el.addEventListener('touchend', up, { passive: false });
+            el.addEventListener('touchcancel', up, { passive: false });
+
+            // Mouse fallback, handy when testing the layout on desktop
+            el.addEventListener('mousedown', down);
+            el.addEventListener('mouseup', up);
+            el.addEventListener('mouseleave', up);
+        }
+
+        wireButton(document.getElementById('btn-up'),
+            () => heldDirections.add('up'),
+            () => heldDirections.delete('up'));
+
+        wireButton(document.getElementById('btn-down'),
+            () => heldDirections.add('down'),
+            () => heldDirections.delete('down'));
+
+        wireButton(document.getElementById('btn-left'),
+            () => heldDirections.add('left'),
+            () => heldDirections.delete('left'));
+
+        wireButton(document.getElementById('btn-right'),
+            () => heldDirections.add('right'),
+            () => heldDirections.delete('right'));
+
+        wireButton(document.getElementById('btn-shoot'),
+            () => { state.shoot = true; },
+            () => { state.shoot = false; });
+
+        // --------------------------------------------------
+        // 5. Fullscreen + landscape lock
+        // Best-effort: supported on Android Chrome/Edge; iOS Safari has
+        // no orientation-lock API and limited fullscreen support outside
+        // <video>, so this silently no-ops there and just relies on the
+        // CSS rotate-prompt below instead.
+        // --------------------------------------------------
+        async function enterFullscreenLandscape() {
+            try {
+                const el = document.documentElement;
+                if (el.requestFullscreen) {
+                    await el.requestFullscreen();
+                } else if (el.webkitRequestFullscreen) {
+                    el.webkitRequestFullscreen();
+                }
+            } catch (err) {
+                console.warn('Fullscreen request failed or unsupported:', err);
+            }
+
+            try {
+                if (screen.orientation && screen.orientation.lock) {
+                    await screen.orientation.lock('landscape');
+                }
+            } catch (err) {
+                console.warn('Orientation lock failed or unsupported:', err);
+            }
+        }
+
+        function isLandscape() {
+            return window.matchMedia('(orientation: landscape)').matches;
+        }
+
+        function showController() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('controller').style.display = 'flex';
+        }
+
+        function showStartScreen() {
+            document.getElementById('start-screen').style.display = 'flex';
+            document.getElementById('controller').style.display = 'none';
+        }
+
+        let controllerStarted = false;
+
+        document.getElementById('start-btn').addEventListener('click', async () => {
+            await enterFullscreenLandscape();
+            controllerStarted = true;
+            if (isLandscape()) {
+                showController();
+            }
+            // If the browser couldn't lock orientation (e.g. iOS), the
+            // orientationchange listener below will flip views once the
+            // user physically rotates the phone.
+        });
+
+        window.addEventListener('orientationchange', () => {
+            if (!controllerStarted) return;
+            setTimeout(() => {
+                if (isLandscape()) {
+                    showController();
+                } else {
+                    showStartScreen();
+                }
+            }, 100);
+        });
+
+        window.addEventListener('resize', () => {
+            if (!controllerStarted) return;
+            if (isLandscape()) {
+                showController();
+            } else {
+                showStartScreen();
+            }
+        });
+
+        // Release all input if the tab loses visibility, so a backgrounded
+        // phone doesn't leave the ship stuck moving/firing.
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                heldDirections.clear();
+                state.shoot = false;
+                sendState();
+            }
+        });
+
+        // --------------------------------------------------
+        // Init
+        // --------------------------------------------------
+        connect();
     </script>
+
 </body>
+
 </html>
