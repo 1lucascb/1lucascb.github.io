@@ -1,110 +1,1107 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitHub Markdown Template</title>
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-dark.min.css" id="theme-dark">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css" id="theme-light" disabled>
-  
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Markdown Template</title>
 
-  <style>
-    /* Theme variables */
-    :root {
-      --bg-color: #0d1117;
-      --btn-bg: #21262d;
-      --btn-text: #c9d1d9;
-      --btn-border: #30363d;
-    }
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-dark.min.css"
+        id="theme-dark">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css"
+        id="theme-light" disabled>
 
-    [data-theme="light"] {
-      --bg-color: #ffffff;
-      --btn-bg: #f6f8fa;
-      --btn-text: #24292f;
-      --btn-border: rgba(27, 31, 36, 0.15);
-    }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-    body {
-      box-sizing: border-box;
-      min-width: 200px;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 45px;
-      background-color: var(--bg-color);
-      transition: background-color 0.2s ease;
-    }
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    /* Fixed Theme Toggle Button */
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--btn-text);
-      background-color: var(--btn-bg);
-      border: 1px solid var(--btn-border);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+    <style>
+        /* Theme variables */
+        :root {
+            --bg-color: #0d1117;
+            --btn-bg: #21262d;
+            --btn-text: #c9d1d9;
+            --btn-border: #30363d;
+            /* Same font stack used by github-markdown-css, so the modals
+               match the resume content instead of falling back to the
+               browser's generic system font. */
+            --gh-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+        }
 
-    .theme-toggle:hover {
-      filter: brightness(1.1);
-    }
+        [data-theme="light"] {
+            --bg-color: #ffffff;
+            --btn-bg: #f6f8fa;
+            --btn-text: #24292f;
+            --btn-border: rgba(27, 31, 36, 0.15);
+        }
 
-    .markdown-body {
-      box-sizing: border-box;
-      min-width: 200px;
-      max-width: 980px;
-      margin: 0 auto;
-    }
-  </style>
+        body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+            background-color: var(--bg-color);
+            transition: background-color 0.2s ease;
+            font-family: var(--gh-font);
+        }
+
+        /* Fixed Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--btn-text);
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 2000;
+        }
+
+        .theme-toggle:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Fixed Mute Button */
+        .mute-toggle {
+            position: fixed;
+            top: 20px;
+            right: 132px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--btn-text);
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 2000;
+        }
+
+        .mute-toggle:hover {
+            filter: brightness(1.1);
+        }
+
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Fixed Gift Button */
+        .gift-button {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--btn-text);
+
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 14px;
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 2000;
+        }
+
+        .gift-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.65);
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .modal-content {
+            background-color: var(--bg-color);
+            border: 1px solid var(--btn-border);
+            padding: 32px 40px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            color: var(--btn-text);
+            min-width: 320px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Matching GitHub Markdown heading style */
+        .modal-content h3 {
+            font-family: var(--gh-font);
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.25;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--btn-border);
+            padding-bottom: 8px;
+        }
+
+        .modal-content p.hint {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-top: 16px;
+            margin-bottom: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 22px;
+            font-family: var(--gh-font);
+            color: var(--btn-text);
+            opacity: 0.7;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .close-btn:hover {
+            opacity: 1;
+        }
+
+        #qrcode {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            /* Optional white padding around QR code for clear scanning in Dark Mode */
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        /* ---------------------------------- */
+        /* Shoot'em up game overlay            */
+        /* ---------------------------------- */
+
+        #game-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 500;
+            /* lets clicks pass through to the page underneath when not focused */
+            pointer-events: none;
+            display: none;
+        }
+
+        #game-hud {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 501;
+            font-family: var(--gh-font);
+            color: #c9d1d9;
+            background-color: rgba(13, 17, 23, 0.6);
+            border: 1px solid var(--btn-border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            display: none;
+            pointer-events: none;
+        }
+
+        #game-hud .hud-title {
+            font-weight: 600;
+            opacity: 0.75;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        #game-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 501;
+            font-family: var(--gh-font);
+            font-size: 12px;
+            color: #c9d1d9;
+            background-color: rgba(13, 17, 23, 0.6);
+            border: 1px solid var(--btn-border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            display: none;
+            pointer-events: none;
+        }
+
+        #game-status.connected {
+            border-color: #3fb950;
+            color: #3fb950;
+        }
+
+        #game-timer {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 501;
+            font-family: var(--gh-font);
+            font-weight: 700;
+            font-size: 20px;
+            color: #c9d1d9;
+            background-color: rgba(13, 17, 23, 0.6);
+            border: 1px solid var(--btn-border);
+            border-radius: 8px;
+            padding: 6px 16px;
+            display: none;
+            pointer-events: none;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #game-timer.warning {
+            color: #f85149;
+            border-color: #f85149;
+        }
+
+        /* Game-over / results modal */
+        #game-over-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        #game-over-modal .modal-content {
+            min-width: 300px;
+        }
+
+        #game-over-reason {
+            font-size: 14px;
+            color: #8b949e;
+            margin: 0 0 20px 0;
+        }
+
+        .go-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+
+        .go-stat-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .go-stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #8b949e;
+        }
+
+        .go-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #c9d1d9;
+        }
+
+        .go-stat-value.is-new-high {
+            color: #3fb950;
+        }
+
+        #game-over-restart-hint {
+            font-size: 13px;
+            color: #8b949e;
+            margin: 0;
+        }
+    </style>
 </head>
+
 <body>
+    <div id="qr-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3>Scan with your phone 🎁</h3>
+            <div id="qrcode"></div>
+            <p class="hint">Scanning pairs your phone as the game controller.</p>
+        </div>
+    </div>
 
-  <button class="theme-toggle" id="toggle-btn" onclick="toggleTheme()">☀️ Light Mode</button>
+    <canvas id="game-canvas"></canvas>
+    <div id="game-hud">
+        <div class="hud-title">Score</div>
+        <div id="game-score">0</div>
+    </div>
+    <div id="game-timer">60</div>
+    <div id="game-status">Waiting for controller…</div>
 
-  <article id="content" class="markdown-body"></article>
+    <div id="game-over-modal">
+        <div class="modal-content">
+            <span class="close-btn" id="game-over-close-btn" aria-label="Close">&times;</span>
+            <h3 id="game-over-title">Game Over</h3>
+            <p id="game-over-reason">An enemy got you.</p>
+            <div class="go-stats">
+                <div class="go-stat-block">
+                    <div class="go-stat-label">Score</div>
+                    <div class="go-stat-value" id="go-score">0</div>
+                </div>
+                <div class="go-stat-block">
+                    <div class="go-stat-label">High Score</div>
+                    <div class="go-stat-value" id="go-high-score">0</div>
+                </div>
+            </div>
+            <p id="game-over-restart-hint">Tap 🎁 Click me to play again.</p>
+        </div>
+    </div>
 
-  <script>
-    // Function to render raw Markdown text
-    function renderMarkdown(markdownText) {
-      document.getElementById('content').innerHTML = marked.parse(markdownText);
-    }
+    <button class="gift-button" id="gift-btn" onclick="handleGiftClick()">🎁 Click me</button>
+    <button class="theme-toggle" id="toggle-btn" onclick="toggleTheme()">☀️ Light Mode</button>
+    <button class="mute-toggle" id="mute-btn" onclick="toggleMute()">🔊 Sound On</button>
 
-    // Toggle theme state
-    function toggleTheme() {
-      const htmlEl = document.documentElement;
-      const currentTheme = htmlEl.getAttribute('data-theme');
-      const darkStylesheet = document.getElementById('theme-dark');
-      const lightStylesheet = document.getElementById('theme-light');
-      const toggleBtn = document.getElementById('toggle-btn');
+    <article id="content" class="markdown-body"></article>
 
-      if (currentTheme === 'dark') {
-        htmlEl.setAttribute('data-theme', 'light');
-        darkStylesheet.disabled = true;
-        lightStylesheet.disabled = false;
-        toggleBtn.innerText = '🌙 Dark Mode';
-      } else {
-        htmlEl.setAttribute('data-theme', 'dark');
-        darkStylesheet.disabled = false;
-        lightStylesheet.disabled = true;
-        toggleBtn.innerText = '☀️ Light Mode';
-      }
-    }
+    <script>
+        const sessionId = crypto.randomUUID();
+        let socket = null;
+        let qrCodeInstance = null;
 
-    // Sample Content
-    const sampleMarkdown = `
-# Hello World
+        function initWebSocket() {
+            if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+                return; // Connection already exists
+            }
+
+            const socketUrl = `wss://ws.lcb936.com/ws?sessionId=${encodeURIComponent(sessionId)}&clientId=screen`;
+            socket = new WebSocket(socketUrl);
+
+            socket.onopen = () => {
+                console.log('WebSocket connected:', socketUrl);
+            };
+
+            socket.onmessage = (event) => {
+                console.log('Message from server:', event.data);
+
+                let payload = event.data;
+                try {
+                    payload = JSON.parse(event.data);
+                } catch (e) {
+                    // not JSON, treat as raw string (legacy "connected" ping)
+                }
+
+                if (payload === 'connected' || payload?.type === 'connected') {
+                    closeModal();
+                    startGame();
+                    return;
+                }
+
+                // Game input contract (placeholder — no real spec from the phone yet):
+                // { "type": "input", "move": "left" | "right" | "up" | "down" | "none", "shoot": true | false }
+                if (payload?.type === 'input') {
+                    Game.applyRemoteInput(payload);
+                }
+            };
+
+            socket.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            socket.onclose = () => {
+                console.log('WebSocket connection closed.');
+                Game.setControllerConnected(false);
+            };
+        }
+
+        function handleGiftClick() {
+            // Unlock audio here since this is a real user-gesture click —
+            // browsers block AudioContext until one occurs.
+            AudioEngine.unlock();
+
+            // If the controller is already connected (e.g. after a game-over),
+            // just restart the game in place instead of forcing a re-scan.
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                startGame();
+                return;
+            }
+
+            // 1. Ensure a single persistent connection
+            initWebSocket();
+
+            // 2. Generate target URL for the phone (using the static sessionId)
+            const phoneUrl = `https://portfolio.lcb936.com/phone?sessionId=${encodeURIComponent(sessionId)}&clientId=phone`;
+
+            // 3. Render QR Code inside modal
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = ''; // Clear previous QR code if any
+
+            qrCodeInstance = new QRCode(qrContainer, {
+                text: phoneUrl,
+                width: 280,
+                height: 280
+            });
+
+            // 4. Display Modal
+            document.getElementById('qr-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('qr-modal').style.display = 'none';
+        }
+
+        // Function to render raw Markdown text
+        function renderMarkdown(markdownText) {
+            document.getElementById('content').innerHTML = marked.parse(markdownText);
+        }
+
+        // Toggle theme state
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const currentTheme = htmlEl.getAttribute('data-theme');
+            const darkStylesheet = document.getElementById('theme-dark');
+            const lightStylesheet = document.getElementById('theme-light');
+            const toggleBtn = document.getElementById('toggle-btn');
+
+            if (currentTheme === 'dark') {
+                htmlEl.setAttribute('data-theme', 'light');
+                darkStylesheet.disabled = true;
+                lightStylesheet.disabled = false;
+                toggleBtn.innerText = '🌙 Dark Mode';
+            } else {
+                htmlEl.setAttribute('data-theme', 'dark');
+                darkStylesheet.disabled = false;
+                lightStylesheet.disabled = true;
+                toggleBtn.innerText = '☀️ Light Mode';
+            }
+        }
+
+        function updateMuteButtonLabel(isMuted) {
+            const muteBtn = document.getElementById('mute-btn');
+            muteBtn.innerText = isMuted ? '🔇 Sound Off' : '🔊 Sound On';
+        }
+
+        function toggleMute() {
+            // AudioEngine.unlock() also gives us a user-gesture-triggered
+            // AudioContext if this happens to be the first interaction.
+            AudioEngine.unlock();
+            const isMuted = AudioEngine.toggleMuted();
+            updateMuteButtonLabel(isMuted);
+        }
+
+        // Reflect the persisted mute preference in the button label on load,
+        // without creating an AudioContext yet (that still requires a
+        // user gesture, handled separately by unlock()).
+        window.addEventListener('DOMContentLoaded', () => {
+            updateMuteButtonLabel(AudioEngine.isMuted());
+        });
+
+        // Sample Content
+        const sampleMarkdown = `
+# Lucas Barbosa
+
+Backend Engineer at GFT Brasil.
+
+I build efficient APIs and concurrent systems in Python, Java and Go, with a hands-on profile — I like understanding the tools and infrastructure I use, not just calling them. Experience with distributed systems concerns — database replication, scalability, distributed locking, async/background processing — alongside networking (TCP/IP, UDP, WebSocket, MQTT, AMQP), relational/non-relational databases, CI/CD pipelines, AWS, Terraform and software architecture.
+
+Currently focused on applied AI: LLMs, AI agents, prompt engineering, MCP servers, vector databases, and AI-driven workflows.
+
+---
+
+## What I've been building
+
+**[tiny-agent-framework](https://github.com/1lucascb/tiny-agent-framework)**
+A Python AI agent framework built from scratch — decorator-based tool registration, dependency injection, lifecycle hooks, dynamic system prompt composition, agent chaining, a skills system, streaming, and OpenAI-compatible provider support.
+
+---
+
+## 🔨 Useful Tools
+
+* [Python WASM Studio](https://portfolio.lcb936.com/python) — Python in the browser with pip
+* [WASM SQLite](https://portfolio.lcb936.com/sqlite) — SQLite running directly in the browser
+
+---
+
+## Things I've dug into
+
+- RAG (chunking strategies, hybrid search, RRF)
+- Long/short-term memory for agents
+- ReAct agent pattern
+- Vector databases — Qdrant, Chroma
+- Prompt engineering — zero-shot/few-shot, CoT, ToT
+- Speech-to-text / text-to-speech
+- MCP (FastMCP)
+
+---
+
+📫 [your email] · [LinkedIn] · [GitHub]
 `;
 
-    // Initialize content
-    renderMarkdown(sampleMarkdown);
-  </script>
+        // Initialize content
+        renderMarkdown(sampleMarkdown);
+    </script>
+
+    <!-- ============================================ -->
+    <!-- Shoot'em up game, controlled by phone via WS   -->
+    <!-- ============================================ -->
+    <script>
+        // --------------------------------------------------
+        // AudioEngine — synthesized SFX/music via Web Audio API.
+        // No audio files: everything here is generated with
+        // oscillators/noise. Swapping any single sound for a real
+        // file later only means changing the body of that one
+        // play*() function — call sites (playSound('shoot'), etc.)
+        // don't change.
+        // --------------------------------------------------
+        const AudioEngine = (() => {
+            let ctx = null;
+            let masterGain = null;
+            let musicGain = null;
+            let sfxGain = null;
+            let musicTimer = null;
+            let musicStep = 0;
+            let muted = false;
+
+            const MUTE_KEY = 'shootemup_muted';
+
+            function ensureContext() {
+                if (ctx) return;
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return; // Web Audio unsupported — SFX silently no-op
+                ctx = new AC();
+                masterGain = ctx.createGain();
+                masterGain.gain.value = muted ? 0 : 1;
+                masterGain.connect(ctx.destination);
+
+                musicGain = ctx.createGain();
+                musicGain.gain.value = 0.18; // music sits quieter than SFX
+                musicGain.connect(masterGain);
+
+                sfxGain = ctx.createGain();
+                sfxGain.gain.value = 0.5;
+                sfxGain.connect(masterGain);
+            }
+
+            // Must be called from a real user gesture (browsers block
+            // audio otherwise). The gift button click is our gesture.
+            function unlock() {
+                ensureContext();
+                if (!ctx) return;
+                if (ctx.state === 'suspended') ctx.resume();
+            }
+
+            function loadMutePreference() {
+                muted = localStorage.getItem(MUTE_KEY) === '1';
+            }
+
+            function setMuted(value) {
+                muted = value;
+                localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
+                if (masterGain) masterGain.gain.value = muted ? 0 : 1;
+            }
+
+            function toggleMuted() {
+                setMuted(!muted);
+                return muted;
+            }
+
+            function isMuted() {
+                return muted;
+            }
+
+            // --- Simple oscillator-based tone helper ---
+            function tone({ freq, duration, type = 'square', gainNode = sfxGain, startGain = 0.35, endGain = 0.0001, freqEnd = null, delay = 0 }) {
+                if (!ctx) return;
+                const t0 = ctx.currentTime + delay;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, t0);
+                if (freqEnd !== null) {
+                    osc.frequency.exponentialRampToValueAtTime(Math.max(freqEnd, 1), t0 + duration);
+                }
+                gain.gain.setValueAtTime(startGain, t0);
+                gain.gain.exponentialRampToValueAtTime(endGain, t0 + duration);
+                osc.connect(gain);
+                gain.connect(gainNode);
+                osc.start(t0);
+                osc.stop(t0 + duration + 0.02);
+            }
+
+            // Short burst of white noise, used for explosion/death "crash" texture
+            function noiseBurst({ duration, gainNode = sfxGain, startGain = 0.3, delay = 0 }) {
+                if (!ctx) return;
+                const t0 = ctx.currentTime + delay;
+                const bufferSize = Math.floor(ctx.sampleRate * duration);
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); // decay envelope
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(startGain, t0);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+                noise.connect(gain);
+                gain.connect(gainNode);
+                noise.start(t0);
+            }
+
+            // --- SFX ---
+            function playShoot() {
+                if (!ctx) return;
+                tone({ freq: 900, freqEnd: 300, duration: 0.12, type: 'square', startGain: 0.25 });
+            }
+
+            function playEnemyKilled() {
+                if (!ctx) return;
+                tone({ freq: 220, freqEnd: 40, duration: 0.18, type: 'sawtooth', startGain: 0.3 });
+                noiseBurst({ duration: 0.15, startGain: 0.18, delay: 0.02 });
+            }
+
+            function playPlayerDeath() {
+                if (!ctx) return;
+                tone({ freq: 300, freqEnd: 30, duration: 0.6, type: 'sawtooth', startGain: 0.35 });
+                noiseBurst({ duration: 0.5, startGain: 0.3, delay: 0.05 });
+            }
+
+            // --- Background music: a small repeating arpeggio loop ---
+            // Synthesized, so it's intentionally simple — swap this for a
+            // real looping <audio>/file-based track later if you want
+            // something more produced.
+            const MUSIC_PATTERN = [130.81, 164.81, 196.00, 164.81, 130.81, 98.00, 130.81, 164.81]; // C3-ish minor-ish loop
+            const MUSIC_STEP_SECONDS = 0.22;
+
+            function scheduleMusicStep() {
+                if (!ctx || muted) {
+                    musicTimer = setTimeout(scheduleMusicStep, MUSIC_STEP_SECONDS * 1000);
+                    return;
+                }
+                const freq = MUSIC_PATTERN[musicStep % MUSIC_PATTERN.length];
+                tone({
+                    freq,
+                    duration: MUSIC_STEP_SECONDS * 0.9,
+                    type: 'triangle',
+                    gainNode: musicGain,
+                    startGain: 0.5,
+                    endGain: 0.0001
+                });
+                musicStep++;
+                musicTimer = setTimeout(scheduleMusicStep, MUSIC_STEP_SECONDS * 1000);
+            }
+
+            function startMusic() {
+                if (!ctx || musicTimer) return;
+                musicStep = 0;
+                scheduleMusicStep();
+            }
+
+            function stopMusic() {
+                if (musicTimer) clearTimeout(musicTimer);
+                musicTimer = null;
+            }
+
+            loadMutePreference();
+
+            return {
+                unlock,
+                setMuted,
+                toggleMuted,
+                isMuted,
+                playShoot,
+                playEnemyKilled,
+                playPlayerDeath,
+                startMusic,
+                stopMusic
+            };
+        })();
+
+        const Game = (() => {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            const hud = document.getElementById('game-hud');
+            const scoreEl = document.getElementById('game-score');
+            const statusEl = document.getElementById('game-status');
+            const timerEl = document.getElementById('game-timer');
+            const overModal = document.getElementById('game-over-modal');
+            const overTitle = document.getElementById('game-over-title');
+            const overReason = document.getElementById('game-over-reason');
+            const overScore = document.getElementById('go-score');
+            const overHighScore = document.getElementById('go-high-score');
+
+            const HIGH_SCORE_KEY = 'shootemup_high_score';
+            const MATCH_DURATION = 60; // seconds
+
+            let running = false;
+            let rafId = null;
+            let lastTime = 0;
+            let score = 0;
+            let timeRemaining = MATCH_DURATION;
+
+            function getHighScore() {
+                return Number(localStorage.getItem(HIGH_SCORE_KEY) || 0);
+            }
+
+            function saveHighScoreIfBeaten(finalScore) {
+                const current = getHighScore();
+                if (finalScore > current) {
+                    localStorage.setItem(HIGH_SCORE_KEY, String(finalScore));
+                    return finalScore;
+                }
+                return current;
+            }
+
+            // Placeholder sprites. Swap `.src` for real assets
+            // (spaceship.png, enemy.png, shoot.png) whenever they're ready —
+            // everything else (sizing, collision) stays the same.
+            const sprites = {
+                ship: new Image(),
+                enemy: new Image(),
+                bullet: new Image()
+            };
+            let spritesLoaded = { ship: false, enemy: false, bullet: false };
+
+            // Point these at your real files later, e.g. "assets/spaceship.png"
+            sprites.ship.src = '';
+            sprites.enemy.src = '';
+            sprites.bullet.src = '';
+
+            sprites.ship.onload = () => spritesLoaded.ship = true;
+            sprites.enemy.onload = () => spritesLoaded.enemy = true;
+            sprites.bullet.onload = () => spritesLoaded.bullet = true;
+
+            const player = {
+                x: 0,
+                y: 0,
+                w: 40,
+                h: 40,
+                speed: 320, // px/sec
+                cooldown: 0,
+                fireRate: 0.22 // seconds between shots
+            };
+
+            // Current input state — updated either by keyboard (desktop fallback
+            // while testing) or by remote messages from the paired phone.
+            const input = {
+                move: 'none', // 'left' | 'right' | 'up' | 'down' | 'none'
+                shoot: false
+            };
+
+            let bullets = [];
+            let enemies = [];
+            let enemySpawnTimer = 0;
+            let enemySpawnInterval = 1.1; // seconds, ramps down over time
+
+            // Enemy fall speed, in px/sec. Raised from the original 60–140
+            // range to 140–260 per your request for a faster, more
+            // pressuring game.
+            const ENEMY_MIN_SPEED = 140;
+            const ENEMY_MAX_SPEED = 260;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            function resetState() {
+                score = 0;
+                scoreEl.textContent = '0';
+                timeRemaining = MATCH_DURATION;
+                timerEl.textContent = String(MATCH_DURATION);
+                timerEl.classList.remove('warning');
+                bullets = [];
+                enemies = [];
+                enemySpawnTimer = 0;
+                enemySpawnInterval = 1.1;
+                player.x = canvas.width / 2 - player.w / 2;
+                player.y = canvas.height - player.h - 30;
+                player.cooldown = 0;
+                input.move = 'none';
+                input.shoot = false;
+            }
+
+            function start() {
+                // Stop any in-progress run first so this also works as a
+                // restart (e.g. the gift button re-triggering start() after
+                // a game over), not just a first-time start.
+                if (running) {
+                    if (rafId) cancelAnimationFrame(rafId);
+                }
+                overModal.style.display = 'none';
+                resizeCanvas();
+                resetState();
+                running = true;
+                canvas.style.display = 'block';
+                hud.style.display = 'block';
+                timerEl.style.display = 'block';
+                statusEl.style.display = 'block';
+                setControllerConnected(true);
+                lastTime = performance.now();
+                rafId = requestAnimationFrame(loop);
+                AudioEngine.startMusic();
+            }
+
+            function stop() {
+                running = false;
+                if (rafId) cancelAnimationFrame(rafId);
+                canvas.style.display = 'none';
+                hud.style.display = 'none';
+                timerEl.style.display = 'none';
+                AudioEngine.stopMusic();
+            }
+
+            // reason: 'died' | 'time'
+            function gameOver(reason) {
+                running = false;
+                if (rafId) cancelAnimationFrame(rafId);
+                AudioEngine.stopMusic();
+
+                const finalScore = score;
+                const previousHigh = getHighScore();
+                const highScore = saveHighScoreIfBeaten(finalScore);
+                const isNewHigh = finalScore > previousHigh && finalScore > 0;
+
+                if (reason === 'died') {
+                    overTitle.textContent = 'Game Over';
+                    overReason.textContent = 'An enemy got you.';
+                    AudioEngine.playPlayerDeath();
+                } else {
+                    overTitle.textContent = "Time's Up";
+                    overReason.textContent = 'You survived the full run!';
+                }
+
+                overScore.textContent = String(finalScore);
+                overHighScore.textContent = String(highScore);
+                overHighScore.classList.toggle('is-new-high', isNewHigh);
+
+                overModal.style.display = 'flex';
+            }
+
+            // Closing the results modal (via the X) just dismisses it so the
+            // user can read the resume underneath — it doesn't restart the
+            // game. The canvas/HUD/timer are hidden too since the match is
+            // already over and there's nothing left to show on them.
+            function closeGameOverModal() {
+                overModal.style.display = 'none';
+                canvas.style.display = 'none';
+                hud.style.display = 'none';
+                timerEl.style.display = 'none';
+                statusEl.style.display = 'none';
+            }
+
+            function setControllerConnected(isConnected) {
+                if (isConnected) {
+                    statusEl.textContent = 'Controller connected';
+                    statusEl.classList.add('connected');
+                } else {
+                    statusEl.textContent = 'Controller disconnected';
+                    statusEl.classList.remove('connected');
+                }
+            }
+
+            // Called from the WebSocket onmessage handler with parsed JSON:
+            // { type: "input", move: "left"|"right"|"up"|"down"|"none", shoot: bool }
+            function applyRemoteInput(payload) {
+                if (typeof payload.move === 'string') input.move = payload.move;
+                if (typeof payload.shoot === 'boolean') input.shoot = payload.shoot;
+            }
+
+            // --- Desktop fallback controls, handy for testing without a phone ---
+            const keysDown = new Set();
+            window.addEventListener('keydown', (e) => {
+                if (!running) return;
+                keysDown.add(e.key);
+                updateInputFromKeyboard();
+            });
+            window.addEventListener('keyup', (e) => {
+                if (!running) return;
+                keysDown.delete(e.key);
+                updateInputFromKeyboard();
+            });
+            function updateInputFromKeyboard() {
+                if (keysDown.has('ArrowLeft') || keysDown.has('a')) input.move = 'left';
+                else if (keysDown.has('ArrowRight') || keysDown.has('d')) input.move = 'right';
+                else if (keysDown.has('ArrowUp') || keysDown.has('w')) input.move = 'up';
+                else if (keysDown.has('ArrowDown') || keysDown.has('s')) input.move = 'down';
+                else input.move = 'none';
+                input.shoot = keysDown.has(' ');
+            }
+
+            function spawnEnemy() {
+                const size = 32;
+                enemies.push({
+                    x: Math.random() * (canvas.width - size),
+                    y: -size,
+                    w: size,
+                    h: size,
+                    speed: ENEMY_MIN_SPEED + Math.random() * (ENEMY_MAX_SPEED - ENEMY_MIN_SPEED)
+                });
+            }
+
+            function fireBullet() {
+                bullets.push({
+                    x: player.x + player.w / 2 - 3,
+                    y: player.y,
+                    w: 6,
+                    h: 14,
+                    speed: 480
+                });
+                AudioEngine.playShoot();
+            }
+
+            function rectsOverlap(a, b) {
+                return a.x < b.x + b.w &&
+                    a.x + a.w > b.x &&
+                    a.y < b.y + b.h &&
+                    a.y + a.h > b.y;
+            }
+
+            function update(dt) {
+                // Player movement, constrained to the viewport
+                if (input.move === 'left') player.x -= player.speed * dt;
+                if (input.move === 'right') player.x += player.speed * dt;
+                if (input.move === 'up') player.y -= player.speed * dt;
+                if (input.move === 'down') player.y += player.speed * dt;
+
+                player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
+                player.y = Math.max(0, Math.min(canvas.height - player.h, player.y));
+
+                // Shooting
+                player.cooldown -= dt;
+                if (input.shoot && player.cooldown <= 0) {
+                    fireBullet();
+                    player.cooldown = player.fireRate;
+                }
+
+                // Bullets
+                bullets.forEach(b => b.y -= b.speed * dt);
+                bullets = bullets.filter(b => b.y + b.h > 0);
+
+                // Enemy spawning — ramps up slowly over time
+                enemySpawnTimer -= dt;
+                if (enemySpawnTimer <= 0) {
+                    spawnEnemy();
+                    enemySpawnTimer = enemySpawnInterval;
+                    enemySpawnInterval = Math.max(0.4, enemySpawnInterval - 0.01);
+                }
+
+                // Enemies
+                enemies.forEach(e => e.y += e.speed * dt);
+                enemies = enemies.filter(e => e.y < canvas.height + e.h);
+
+                // Bullet vs enemy collisions
+                for (let ei = enemies.length - 1; ei >= 0; ei--) {
+                    for (let bi = bullets.length - 1; bi >= 0; bi--) {
+                        if (rectsOverlap(enemies[ei], bullets[bi])) {
+                            enemies.splice(ei, 1);
+                            bullets.splice(bi, 1);
+                            score += 10;
+                            scoreEl.textContent = String(score);
+                            AudioEngine.playEnemyKilled();
+                            break;
+                        }
+                    }
+                }
+
+                // Enemy vs player collision — fatal on touch
+                for (let ei = enemies.length - 1; ei >= 0; ei--) {
+                    if (rectsOverlap(enemies[ei], player)) {
+                        gameOver('died');
+                        return;
+                    }
+                }
+
+                // Match timer
+                timeRemaining -= dt;
+                if (timeRemaining <= 0) {
+                    timeRemaining = 0;
+                    timerEl.textContent = '0';
+                    gameOver('time');
+                    return;
+                }
+                const secondsLeft = Math.ceil(timeRemaining);
+                timerEl.textContent = String(secondsLeft);
+                timerEl.classList.toggle('warning', secondsLeft <= 10);
+            }
+
+            function drawSprite(img, loaded, x, y, w, h, fallbackColor) {
+                if (loaded) {
+                    ctx.drawImage(img, x, y, w, h);
+                } else {
+                    ctx.fillStyle = fallbackColor;
+                    ctx.fillRect(x, y, w, h);
+                }
+            }
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Player (placeholder: cyan square until spaceship.png is set)
+                drawSprite(sprites.ship, spritesLoaded.ship, player.x, player.y, player.w, player.h, '#58a6ff');
+
+                // Bullets (placeholder: yellow bars until shoot.png is set)
+                bullets.forEach(b => {
+                    drawSprite(sprites.bullet, spritesLoaded.bullet, b.x, b.y, b.w, b.h, '#e3b341');
+                });
+
+                // Enemies (placeholder: red squares until enemy.png is set)
+                enemies.forEach(e => {
+                    drawSprite(sprites.enemy, spritesLoaded.enemy, e.x, e.y, e.w, e.h, '#f85149');
+                });
+            }
+
+            function loop(time) {
+                if (!running) return;
+                const dt = Math.min(0.05, (time - lastTime) / 1000); // clamp to avoid big jumps on tab switch
+                lastTime = time;
+                update(dt);
+                render();
+                rafId = requestAnimationFrame(loop);
+            }
+
+            window.addEventListener('resize', () => {
+                if (running) resizeCanvas();
+            });
+
+            return {
+                start,
+                stop,
+                applyRemoteInput,
+                setControllerConnected,
+                closeGameOverModal
+            };
+        })();
+
+        function startGame() {
+            Game.start();
+        }
+
+        document.getElementById('game-over-close-btn').addEventListener('click', () => {
+            Game.closeGameOverModal();
+        });
+    </script>
 
 </body>
+
 </html>
