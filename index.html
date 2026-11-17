@@ -119,6 +119,26 @@
             color: #d29922;
         }
 
+        .status.work .status-dot {
+            position: relative;
+        }
+
+        .status.work .status-dot::after {
+            content: "";
+            position: absolute;
+            inset: -4px;
+            border: 1.8px solid rgba(210, 153, 34, 0.25);
+            border-top-color: #d29922;
+            border-radius: 50%;
+            animation: status-spin 1.2s linear infinite;
+        }
+
+        @keyframes status-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .status.free {
             color: var(--green);
         }
