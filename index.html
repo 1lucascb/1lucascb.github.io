@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,7 +41,8 @@
             text-decoration: none;
         }
 
-        button, input {
+        button,
+        input {
             font: inherit;
         }
 
@@ -96,11 +97,34 @@
             margin-top: 9px;
         }
 
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.8rem;
+            margin-top: 9px;
+            transition: color 0.3s ease;
+        }
+
         .status-dot {
             width: 7px;
             height: 7px;
-            background: var(--green);
             border-radius: 50%;
+            background: currentColor;
+            transition: background 0.3s ease;
+        }
+
+        /* Status colors */
+        .status.work {
+            color: #d29922;
+        }
+
+        .status.free {
+            color: var(--green);
+        }
+
+        .status.sleep {
+            color: #8b949e;
         }
 
         .social-links {
@@ -380,50 +404,33 @@
         <!-- Profile -->
         <header class="header">
             <div class="identity">
-                <img
-                    class="avatar"
-                    id="avatar"
-                    src="https://github.com/1lucascb.png"
-                    alt="Lucas Barbosa"
-                >
+                <img class="avatar" id="avatar" src="https://github.com/1lucascb.png" alt="Lucas Barbosa">
 
                 <div>
                     <h1>Lucas Barbosa</h1>
                     <div class="subtitle">Software Developer</div>
-                    <div class="status">
+                    <div class="status" id="status">
                         <span class="status-dot"></span>
-                        Building things and learning along the way
+                        <span id="status-text">Loading status...</span>
+                        <span id="brazil-time"></span>
                     </div>
                 </div>
             </div>
 
             <nav class="social-links">
-                <a
-                    class="social-link"
-                    href="https://www.linkedin.com/in/lucas-crespi/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
+                <a class="social-link" href="https://www.linkedin.com/in/lucas-crespi/" target="_blank"
+                    rel="noopener noreferrer">
                     <i data-lucide="linkedin"></i>
                     LinkedIn
                     <i data-lucide="external-link"></i>
                 </a>
 
-                <a
-                    class="social-link"
-                    href="Lucas_Barbosa_Resume.pdf"
-                    download
-                >
+                <a class="social-link" href="Lucas_Barbosa_Resume.pdf" download>
                     <i data-lucide="file-down"></i>
                     Resume
                 </a>
 
-                <a
-                    class="social-link"
-                    href="https://github.com/1lucascb"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
+                <a class="social-link" href="https://github.com/1lucascb" target="_blank" rel="noopener noreferrer">
                     <i data-lucide="github"></i>
                     GitHub
                     <i data-lucide="external-link"></i>
@@ -453,11 +460,7 @@
 
                 <label class="search">
                     <i data-lucide="search"></i>
-                    <input
-                        id="search"
-                        type="search"
-                        placeholder="Search repositories..."
-                    >
+                    <input id="search" type="search" placeholder="Search repositories...">
                 </label>
             </div>
 
@@ -582,8 +585,8 @@
 
                     <p class="description">
                         ${escapeHTML(
-                            repo.description || "No description provided."
-                        )}
+                repo.description || "No description provided."
+            )}
                     </p>
 
                     <div class="card-bottom">
@@ -633,6 +636,115 @@
 
         lucide.createIcons();
         init();
+
+
+        const STATUS_MESSAGES = {
+            work: [
+                "Currently at work",
+                "Working on something",
+                "Probably debugging something",
+                "Building software",
+                "Deep into a coding session",
+                "Making things work"
+            ],
+            free: [
+                "Enjoying some free time",
+                "Probably playing something",
+                "Taking a break",
+                "Relaxing after work",
+                "Enjoying my evening",
+                "Off the clock"
+            ],
+            sleep: [
+                "Probably sleeping...",
+                "Getting some rest",
+                "Hopefully dreaming about clean code",
+                "Recharging for tomorrow",
+                "Offline for the night"
+            ],
+            morning: [
+                "Probably at the gym",
+                "Enjoying the morning",
+                "Having breakfast",
+                "Starting the day",
+                "Getting ready for the day",
+                "Getting some coffee ☕"
+            ],
+            lunch: [
+                "Having lunch",
+                "Taking a lunch break",
+                "Enjoying some food",
+                "Away for lunch",
+                "Taking a break from coding",
+                "Refueling for the afternoon"
+            ],
+        };
+
+        function updateStatus(fakeTime = null) {
+            const now = fakeTime
+                ? new Date(`2026-01-01T${fakeTime}:00-03:00`)
+                : new Date();
+
+            const formatter = new Intl.DateTimeFormat("en-US", {
+                timeZone: "America/Sao_Paulo",
+                hour: "2-digit",
+                minute: "2-digit",
+                hourCycle: "h23"
+            });
+
+            const parts = formatter.formatToParts(now);
+
+            const hour = Number(parts.find(p => p.type === "hour").value);
+            const minute = Number(parts.find(p => p.type === "minute").value);
+
+            const time = hour * 60 + minute;
+
+            const brazilTime = new Intl.DateTimeFormat("en-US", {
+                timeZone: "America/Sao_Paulo",
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true
+            }).format(now).toLowerCase();
+
+            document.getElementById("brazil-time").textContent = `· ${brazilTime}`;
+
+            const status = document.getElementById("status");
+            const text = document.getElementById("status-text");
+
+            let period;
+
+            if (time >= 12 * 60 && time < 13 * 60) {
+                period = "lunch";
+            } else if (time >= 9 * 60 && time <= 18 * 60) {
+                period = "work";
+            } else if (time > 18 * 60 && time < 22 * 60 + 30) {
+                period = "free";
+            } else if (time >= 22 * 60 + 30 || time < 6 * 60) {
+                period = "sleep";
+            } else {
+                period = "morning";
+            }
+
+            const classes = {
+                work: "work",
+                lunch: "work",
+                free: "free",
+                sleep: "sleep",
+                morning: "free"
+            };
+
+            const messages = STATUS_MESSAGES[period];
+            const randomMessage = messages[
+                Math.floor(Math.random() * messages.length)
+            ];
+
+            status.className = `status ${classes[period]}`;
+            text.textContent = randomMessage;
+        }
+
+        // Refresh every minute
+        setInterval(updateStatus, 60_000);
     </script>
 </body>
+
 </html>
