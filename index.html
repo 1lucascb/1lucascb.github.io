@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Lucas Barbosa — Software Developer</title>
+    <title>Lucas Barbosa</title>
 
     <!-- Lucide -->
     <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
@@ -733,13 +733,13 @@
 
             let period;
 
-            if (time >= 12 * 60 && time < 13 * 60) {
+            if (time >= 12 * 60 && time <= 13 * 60) {
                 period = "lunch";
             } else if (time >= 9 * 60 && time <= 18 * 60) {
                 period = "work";
-            } else if (time > 18 * 60 && time < 22 * 60 + 30) {
+            } else if (time > 18 * 60 && time <= 22 * 60 + 30) {
                 period = "free";
-            } else if (time >= 22 * 60 + 30 || time < 6 * 60) {
+            } else if (time > 22 * 60 + 30 || time < 6 * 60) {
                 period = "sleep";
             } else {
                 period = "morning";
