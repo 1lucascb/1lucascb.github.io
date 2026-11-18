@@ -608,12 +608,7 @@
         <!-- Profile -->
         <header class="header">
             <div class="identity">
-                <img
-                    class="avatar"
-                    id="avatar"
-                    src="https://github.com/1lucascb.png"
-                    alt="Lucas Barbosa"
-                >
+                <img class="avatar" id="avatar" src="https://github.com/1lucascb.png" alt="Lucas Barbosa">
 
                 <div>
                     <h1>Lucas Barbosa</h1>
@@ -628,12 +623,8 @@
             </div>
 
             <nav class="social-links">
-                <a
-                    class="social-link"
-                    href="https://www.linkedin.com/in/lucas-crespi/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
+                <a class="social-link" href="https://www.linkedin.com/in/lucas-crespi/" target="_blank"
+                    rel="noopener noreferrer">
                     <i data-lucide="linkedin"></i>
                     LinkedIn
                     <i data-lucide="external-link"></i>
@@ -644,12 +635,7 @@
                     Resume
                 </a>
 
-                <a
-                    class="social-link"
-                    href="https://github.com/1lucascb"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
+                <a class="social-link" href="https://github.com/1lucascb" target="_blank" rel="noopener noreferrer">
                     <i data-lucide="github"></i>
                     GitHub
                     <i data-lucide="external-link"></i>
@@ -679,11 +665,7 @@
 
                 <label class="search">
                     <i data-lucide="search"></i>
-                    <input
-                        id="search"
-                        type="search"
-                        placeholder="Search repositories..."
-                    >
+                    <input id="search" type="search" placeholder="Search repositories...">
                 </label>
             </div>
 
@@ -712,42 +694,23 @@
                     What kind of coffee are you in the mood for?
                 </label>
 
-                <textarea
-                    class="barista-input"
-                    id="barista-input"
-                    maxlength="2000"
-                    placeholder="I like creamy coffee, a little sweetness, and chocolate notes. Nothing too strong. I'd love something refreshing for a hot afternoon..."
-                ></textarea>
+                <textarea class="barista-input" id="barista-input" maxlength="2000"
+                    placeholder="I like creamy coffee, a little sweetness, and chocolate notes. Nothing too strong. I'd love something refreshing for a hot afternoon..."></textarea>
 
                 <div class="barista-actions">
-                    <button
-                        class="embedding-button"
-                        id="barista-load-model"
-                        type="button"
-                        disabled
-                    >
+                    <button class="embedding-button" id="barista-load-model" type="button" disabled>
                         <i data-lucide="download"></i>
                         Load EmbeddingGemma 2
                     </button>
 
-                    <button
-                        class="embedding-button primary"
-                        id="barista-suggest"
-                        type="button"
-                        disabled
-                        title="Recommendations are not implemented yet"
-                    >
+                    <button class="embedding-button primary" id="barista-suggest" type="button" disabled
+                        title="Recommendations are not implemented yet">
                         <i data-lucide="sparkles"></i>
                         Suggest drinks
                     </button>
 
-                    <span
-                        class="barista-model-status"
-                        id="barista-model-status"
-                        data-state="checking"
-                        role="status"
-                        aria-live="polite"
-                    >
+                    <span class="barista-model-status" id="barista-model-status" data-state="checking" role="status"
+                        aria-live="polite">
                         Checking WebGPU...
                     </span>
                 </div>
@@ -885,8 +848,8 @@
 
                     <p class="description">
                         ${escapeHTML(
-                            repo.description || "No description provided."
-                        )}
+                repo.description || "No description provided."
+            )}
                     </p>
 
                     <div class="card-bottom">
@@ -1086,6 +1049,21 @@
             })();
 
             return modelLoadPromise;
+        }
+
+        async function getEmbedding(prompt) {
+            if (!embeddingModel || !embeddingTokenizer) {
+                throw new Error("Embedding model is not loaded.");
+            }
+
+            if (!prompt?.trim()) {
+                throw new Error("Prompt cannot be empty.");
+            }
+
+            const tokens = await embeddingTokenizer([prompt]);
+            const result = await embeddingModel(tokens);
+
+            return result.sentence_embedding.tolist()[0];
         }
 
         baristaLoadButton.addEventListener("click", async () => {

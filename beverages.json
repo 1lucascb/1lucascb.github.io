@@ -1,4 +1,4 @@
-[
+﻿[
     {
         "name": "Classic Cappuccino",
         "description": "A balanced espresso-based drink with rich coffee flavor, steamed milk, and a thick layer of silky foam.",
@@ -12,8 +12,9 @@
             "Taking a short coffee break",
             "Enjoying a classic coffee at a cafe"
         ],
-        "imagePath": "",
-        "embedding": []
+        "embeddings": [],
+        "embeddedContent": "Beverage: Classic Cappuccino. Description: A balanced espresso-based drink with rich coffee flavor, steamed milk, and a thick layer of silky foam. Ingredients: espresso, steamed milk, milk foam. Suitable occasions: Starting a productive morning; Taking a short coffee break; Enjoying a classic coffee at a cafe.",
+        "imagePath": ""
     },
     {
         "name": "Iced Caramel Latte",
@@ -28,7 +29,10 @@
             "Cooling down on a hot afternoon",
             "Enjoying something sweet while working",
             "Taking a refreshing afternoon break"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Iced Caramel Latte. Description: A refreshing combination of espresso, cold milk, ice, and sweet caramel syrup. Ingredients: espresso, cold milk, caramel syrup, ice. Suitable occasions: Cooling down on a hot afternoon; Enjoying something sweet while working; Taking a refreshing afternoon break.",
+        "imagePath": ""
     },
     {
         "name": "Flat White",
@@ -42,7 +46,10 @@
             "Focusing on a demanding task",
             "Having a quick coffee before work",
             "Enjoying a balanced coffee without excessive sweetness"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Flat White. Description: A smooth and velvety espresso drink with finely textured milk and a stronger coffee presence than a traditional latte. Ingredients: double espresso, steamed milk, microfoam. Suitable occasions: Focusing on a demanding task; Having a quick coffee before work; Enjoying a balanced coffee without excessive sweetness.",
+        "imagePath": ""
     },
     {
         "name": "Mocha",
@@ -57,7 +64,10 @@
             "Treating yourself after a long day",
             "Enjoying dessert in liquid form",
             "Relaxing on a rainy afternoon"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Mocha. Description: A comforting blend of espresso, chocolate, and steamed milk, combining rich coffee bitterness with sweet cocoa notes. Ingredients: espresso, chocolate sauce, steamed milk, milk foam. Suitable occasions: Treating yourself after a long day; Enjoying dessert in liquid form; Relaxing on a rainy afternoon.",
+        "imagePath": ""
     },
     {
         "name": "Vanilla Latte",
@@ -71,7 +81,10 @@
             "Enjoying a calm morning",
             "Working in a cozy environment",
             "Wanting a sweet but not overwhelming coffee"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Vanilla Latte. Description: A mellow espresso drink with steamed milk and vanilla syrup, offering a creamy texture and gentle sweetness. Ingredients: espresso, steamed milk, vanilla syrup. Suitable occasions: Enjoying a calm morning; Working in a cozy environment; Wanting a sweet but not overwhelming coffee.",
+        "imagePath": ""
     },
     {
         "name": "Americano",
@@ -84,7 +97,10 @@
             "Needing a straightforward caffeine boost",
             "Drinking coffee while reading",
             "Preferring coffee without milk or sugar"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Americano. Description: Espresso diluted with hot water, producing a clean and approachable coffee with a flavor similar to traditional brewed coffee. Ingredients: espresso, hot water. Suitable occasions: Needing a straightforward caffeine boost; Drinking coffee while reading; Preferring coffee without milk or sugar.",
+        "imagePath": ""
     },
     {
         "name": "Cold Brew",
@@ -98,7 +114,10 @@
             "Working through a hot summer day",
             "Enjoying a long afternoon study session",
             "Wanting a smooth and refreshing caffeine boost"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Cold Brew. Description: Coffee slowly steeped in cold water for several hours, resulting in a smooth, naturally sweet drink with low perceived acidity. Ingredients: coarsely ground coffee, cold water, ice. Suitable occasions: Working through a hot summer day; Enjoying a long afternoon study session; Wanting a smooth and refreshing caffeine boost.",
+        "imagePath": ""
     },
     {
         "name": "Affogato",
@@ -111,7 +130,10 @@
             "Finishing a nice dinner",
             "Craving a coffee-based dessert",
             "Sharing a small indulgence with friends"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Affogato. Description: A scoop of creamy vanilla ice cream topped with a freshly pulled shot of hot espresso, creating a contrast of temperatures and textures. Ingredients: espresso, vanilla ice cream. Suitable occasions: Finishing a nice dinner; Craving a coffee-based dessert; Sharing a small indulgence with friends.",
+        "imagePath": ""
     },
     {
         "name": "Dirty Chai Latte",
@@ -126,7 +148,10 @@
             "Enjoying a cozy autumn morning",
             "Wanting something spiced and energizing",
             "Taking a break during a cold day"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Dirty Chai Latte. Description: A spiced chai latte enhanced with espresso, combining warm cinnamon and cardamom notes with a bold coffee finish. Ingredients: espresso, chai concentrate, steamed milk, cinnamon. Suitable occasions: Enjoying a cozy autumn morning; Wanting something spiced and energizing; Taking a break during a cold day.",
+        "imagePath": ""
     },
     {
         "name": "Coconut Iced Coffee",
@@ -141,7 +166,10 @@
             "Relaxing on a warm afternoon",
             "Looking for a dairy-free coffee option",
             "Dreaming of a tropical vacation"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Coconut Iced Coffee. Description: A tropical-inspired iced coffee combining bold brewed coffee with creamy coconut milk and a subtle natural sweetness. Ingredients: brewed coffee, coconut milk, ice, coconut sugar. Suitable occasions: Relaxing on a warm afternoon; Looking for a dairy-free coffee option; Dreaming of a tropical vacation.",
+        "imagePath": ""
     },
     {
         "name": "Espresso Tonic",
@@ -156,7 +184,10 @@
             "Exploring unusual coffee combinations",
             "Enjoying a refreshing drink outdoors",
             "Looking for something light and sparkling"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Espresso Tonic. Description: A refreshing and slightly bitter drink made with espresso poured over tonic water and ice, creating a crisp sparkling coffee experience. Ingredients: espresso, tonic water, ice, lemon peel. Suitable occasions: Exploring unusual coffee combinations; Enjoying a refreshing drink outdoors; Looking for something light and sparkling.",
+        "imagePath": ""
     },
     {
         "name": "Honey Cinnamon Latte",
@@ -171,7 +202,10 @@
             "Enjoying a peaceful morning",
             "Relaxing with a book",
             "Wanting a naturally sweet and comforting drink"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Honey Cinnamon Latte. Description: A comforting espresso drink sweetened with honey and finished with cinnamon, offering warm and aromatic flavors. Ingredients: espresso, steamed milk, honey, ground cinnamon. Suitable occasions: Enjoying a peaceful morning; Relaxing with a book; Wanting a naturally sweet and comforting drink.",
+        "imagePath": ""
     },
     {
         "name": "Vietnamese Iced Coffee",
@@ -185,7 +219,10 @@
             "Enjoying an intensely flavored coffee",
             "Cooling off during a hot afternoon",
             "Craving a rich and sweet caffeine boost"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Vietnamese Iced Coffee. Description: Strong coffee brewed through a traditional Vietnamese filter and combined with sweetened condensed milk over ice. Ingredients: strong brewed coffee, sweetened condensed milk, ice. Suitable occasions: Enjoying an intensely flavored coffee; Cooling off during a hot afternoon; Craving a rich and sweet caffeine boost.",
+        "imagePath": ""
     },
     {
         "name": "Cortado",
@@ -198,7 +235,10 @@
             "Taking a quick break between meetings",
             "Enjoying a small but strong coffee",
             "Preferring minimal milk and no added sweetness"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Cortado. Description: A small espresso drink balanced with an approximately equal amount of warm milk, reducing acidity without hiding the coffee flavor. Ingredients: espresso, warm steamed milk. Suitable occasions: Taking a quick break between meetings; Enjoying a small but strong coffee; Preferring minimal milk and no added sweetness.",
+        "imagePath": ""
     },
     {
         "name": "Maple Oat Latte",
@@ -212,6 +252,9 @@
             "Enjoying a slow weekend morning",
             "Working from a cozy coffee shop",
             "Wanting a dairy-free and mildly sweet coffee"
-        ]
+        ],
+        "embeddings": [],
+        "embeddedContent": "Beverage: Maple Oat Latte. Description: A creamy espresso drink made with oat milk and maple syrup, offering a smooth texture and subtle caramel-like sweetness. Ingredients: espresso, oat milk, maple syrup. Suitable occasions: Enjoying a slow weekend morning; Working from a cozy coffee shop; Wanting a dairy-free and mildly sweet coffee.",
+        "imagePath": ""
     }
 ]
