@@ -526,6 +526,67 @@
             height: 21px;
         }
 
+        /* Result items styling */
+        .barista-result-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .drink-match-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .drink-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drink-name {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--text);
+        }
+
+        .drink-score {
+            font-size: 0.78rem;
+            color: var(--green);
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid rgba(63, 185, 80, 0.2);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-family: monospace;
+        }
+
+        .drink-desc {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .drink-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .drink-tag {
+            font-size: 0.72rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
         /* Footer */
 
         footer {
@@ -685,11 +746,10 @@
 
             <div class="barista-card">
                 <p class="barista-description">
-                    Tell me what you enjoy, what you want to avoid, or the kind
-                    of moment you're choosing a coffee for. I'll find drinks
-                    that match your taste.
+                    Hybrid retrieval combining semantic similarity (EmbeddingGemma 2 via WebGPU)
+                    and lexical relevance (BM25), merged locally using Reciprocal Rank Fusion (RRF).
+                    Everything runs entirely in your browser
                 </p>
-
                 <label class="barista-label" for="barista-input">
                     What kind of coffee are you in the mood for?
                 </label>
@@ -703,8 +763,7 @@
                         Load EmbeddingGemma 2
                     </button>
 
-                    <button class="embedding-button primary" id="barista-suggest" type="button" disabled
-                        title="Recommendations are not implemented yet">
+                    <button class="embedding-button primary" id="barista-suggest" type="button" disabled>
                         <i data-lucide="sparkles"></i>
                         Suggest drinks
                     </button>
@@ -718,7 +777,7 @@
                 <div class="barista-results">
                     <div class="barista-results-header">
                         <h3>Your coffee matches</h3>
-                        <span class="barista-results-hint">
+                        <span class="barista-results-hint" id="barista-results-hint">
                             Personalized recommendations
                         </span>
                     </div>
@@ -753,32 +812,23 @@
         const count = document.getElementById("count");
 
         let repositories = [];
+        let beveragesData = [];
 
         document.getElementById("year").textContent =
             new Date().getFullYear();
 
         async function loadProfile() {
             const response = await fetch(API);
-
-            if (!response.ok) {
-                throw new Error("Failed to retrieve GitHub profile.");
-            }
-
+            if (!response.ok) throw new Error("Failed to retrieve GitHub profile.");
             const profile = await response.json();
-
-            document.getElementById("avatar").src =
-                profile.avatar_url;
+            document.getElementById("avatar").src = profile.avatar_url;
         }
 
         async function loadRepositories() {
             const response = await fetch(
                 `${API}/repos?sort=updated&per_page=100&type=owner`
             );
-
-            if (!response.ok) {
-                throw new Error("Failed to retrieve repositories.");
-            }
-
+            if (!response.ok) throw new Error("Failed to retrieve repositories.");
             const data = await response.json();
 
             const whitelistNames = [
@@ -790,13 +840,156 @@
 
             repositories = data
                 .filter(repo => !repo.fork && whitelistNames.includes(repo.name))
-                .sort((a, b) =>
-                    new Date(b.updated_at) - new Date(a.updated_at)
-                );
+                .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
             render();
         }
 
+        // Tokenize and clean text for BM25
+        function tokenize(text) {
+            return text
+                .normalize("NFD")
+                .replace(/\p{M}/gu, "")
+                .toLowerCase()
+                .replace(/[^\p{L}\p{N}\s]/gu, " ")
+                .split(/\s+/)
+                .filter(word => word.length > 1);
+        }
+        // BM25 Index & Scorer
+        class BM25 {
+            constructor(documents, k1 = 1.5, b = 0.75) {
+                this.k1 = k1;
+                this.b = b;
+                this.documents = documents;
+                this.N = documents.length;
+                this.avgdl = 0;
+                this.docFreqs = {};
+                this.docLengths = [];
+                this.tokenizedDocs = [];
+
+                this._init();
+            }
+
+            _init() {
+                let totalLength = 0;
+                for (let i = 0; i < this.N; i++) {
+                    // Combine name, description, ingredients, and scenarios for text matching
+                    const doc = this.documents[i];
+                    const text = `${doc.name} ${doc.description} ${doc.ingredients.join(" ")} ${doc.scenario.join(" ")}`;
+                    const tokens = tokenize(text);
+
+                    this.tokenizedDocs.push(tokens);
+                    this.docLengths.push(tokens.length);
+                    totalLength += tokens.length;
+
+                    // Compute Document Frequencies (DF)
+                    const uniqueTokens = new Set(tokens);
+                    uniqueTokens.forEach(token => {
+                        this.docFreqs[token] = (this.docFreqs[token] || 0) + 1;
+                    });
+                }
+                this.avgdl = totalLength / this.N;
+            }
+
+            score(query) {
+                const queryTokens = tokenize(query);
+                const scores = new Array(this.N).fill(0);
+
+                queryTokens.forEach(token => {
+                    if (!this.docFreqs[token]) return;
+
+                    // Inverse Document Frequency (IDF) using BM25 formula
+                    const df = this.docFreqs[token];
+                    const idf = Math.log(1 + (this.N - df + 0.5) / (df + 0.5));
+
+                    for (let i = 0; i < this.N; i++) {
+                        const tokens = this.tokenizedDocs[i];
+                        const dl = this.docLengths[i];
+
+                        // Term Frequency (TF) in document
+                        const tf = tokens.filter(t => t === token).length;
+                        if (tf === 0) continue;
+
+                        const numerator = tf * (this.k1 + 1);
+                        const denominator = tf + this.k1 * (1 - this.b + this.b * (dl / this.avgdl));
+
+                        scores[i] += idf * (numerator / denominator);
+                    }
+                });
+
+                return scores;
+            }
+        }
+
+        function reciprocalRankFusion(
+            semanticScores,
+            bm25Scores,
+            k = 60,
+            topK = 20
+        ) {
+            if (semanticScores.length !== bm25Scores.length) {
+                throw new Error("Ranking arrays must have the same length.");
+            }
+
+            function buildRanking(scores, predicate = () => true) {
+                return scores
+                    .map((score, index) => ({ index, score }))
+                    .filter(item =>
+                        Number.isFinite(item.score) && predicate(item.score)
+                    )
+                    .sort((a, b) =>
+                        (b.score - a.score) || (a.index - b.index)
+                    )
+                    .slice(0, topK);
+            }
+
+            // Semantic retrieval: keep the top K nearest documents.
+            const semanticRanked = buildRanking(semanticScores);
+
+            // BM25 retrieval: exclude documents without lexical matches.
+            const bm25Ranked = buildRanking(
+                bm25Scores,
+                score => score > 0
+            );
+
+            const fusedScores = new Map();
+
+            function addRanking(ranking) {
+                ranking.forEach((item, rank) => {
+                    const contribution = 1 / (k + rank + 1);
+
+                    fusedScores.set(
+                        item.index,
+                        (fusedScores.get(item.index) || 0) + contribution
+                    );
+                });
+            }
+
+            addRanking(semanticRanked);
+            addRanking(bm25Ranked);
+
+            return Array.from(fusedScores, ([index, score]) => ({
+                index,
+                score
+            })).sort((a, b) =>
+                (b.score - a.score) || (a.index - b.index)
+            );
+        }
+
+        let bm25Index = null;
+
+        async function loadBeverages() {
+            try {
+                const response = await fetch("beverages.json");
+                if (!response.ok) throw new Error("Failed to load beverages.json");
+                beveragesData = await response.json();
+
+                // Initialize BM25 index over the dataset
+                bm25Index = new BM25(beveragesData);
+            } catch (error) {
+                console.error("Could not fetch beverages.json:", error);
+            }
+        }
         function escapeHTML(value) {
             return String(value).replace(/[&<>"']/g, char => ({
                 "&": "&amp;",
@@ -847,9 +1040,7 @@
                     </div>
 
                     <p class="description">
-                        ${escapeHTML(
-                repo.description || "No description provided."
-            )}
+                        ${escapeHTML(repo.description || "No description provided.")}
                     </p>
 
                     <div class="card-bottom">
@@ -881,20 +1072,17 @@
 
         search.addEventListener("input", render);
 
-        // EmbeddingGemma 2 browser inference.
-        // The same model instance will be shared by future features.
+        // EmbeddingGemma 2 browser inference & semantic search
         const EMBEDDING_MODEL_ID = "onnx-community/embeddinggemma-2-ONNX";
-        const TRANSFORMERS_MODULE =
-            "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2";
+        const TRANSFORMERS_MODULE = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2";
 
-        const baristaLoadButton =
-            document.getElementById("barista-load-model");
-
-        const baristaSuggestButton =
-            document.getElementById("barista-suggest");
-
-        const baristaModelStatus =
-            document.getElementById("barista-model-status");
+        const baristaLoadButton = document.getElementById("barista-load-model");
+        const baristaSuggestButton = document.getElementById("barista-suggest");
+        const baristaModelStatus = document.getElementById("barista-model-status");
+        const baristaInput = document.getElementById("barista-input");
+        const baristaEmpty = document.getElementById("barista-empty");
+        const baristaResults = document.getElementById("barista-results");
+        const baristaResultsHint = document.getElementById("barista-results-hint");
 
         function setBaristaModelStatus(message, state = "info") {
             baristaModelStatus.textContent = message;
@@ -908,142 +1096,70 @@
 
         async function detectWebGPU() {
             if (!window.isSecureContext) {
-                setBaristaModelStatus(
-                    "HTTPS or localhost required",
-                    "error"
-                );
+                setBaristaModelStatus("HTTPS or localhost required", "error");
                 return;
             }
 
             if (!navigator.gpu) {
-                setBaristaModelStatus(
-                    "WebGPU is not supported by this browser",
-                    "error"
-                );
+                setBaristaModelStatus("WebGPU is not supported by this browser", "error");
                 return;
             }
 
             try {
                 const adapter = await navigator.gpu.requestAdapter();
-
                 if (!adapter) {
-                    setBaristaModelStatus(
-                        "No compatible GPU adapter found",
-                        "error"
-                    );
+                    setBaristaModelStatus("No compatible GPU adapter found", "error");
                     return;
                 }
 
                 embeddingRuntimeAvailable = true;
-
                 baristaLoadButton.disabled = false;
-
-                setBaristaModelStatus(
-                    "WebGPU available · model not loaded",
-                    "ready"
-                );
+                setBaristaModelStatus("WebGPU available · model not loaded", "ready");
             } catch (error) {
                 console.error("WebGPU detection failed:", error);
-
-                setBaristaModelStatus(
-                    "WebGPU initialization failed",
-                    "error"
-                );
+                setBaristaModelStatus("WebGPU initialization failed", "error");
             }
         }
 
         async function loadEmbeddingModel() {
             if (!embeddingRuntimeAvailable) {
-                throw new Error(
-                    "A compatible WebGPU adapter is not available."
-                );
+                throw new Error("A compatible WebGPU adapter is not available.");
             }
 
-            if (embeddingModel && embeddingTokenizer) {
-                return;
-            }
-
-            if (modelLoadPromise) {
-                return modelLoadPromise;
-            }
+            if (embeddingModel && embeddingTokenizer) return;
+            if (modelLoadPromise) return modelLoadPromise;
 
             modelLoadPromise = (async () => {
                 baristaLoadButton.disabled = true;
-
-                setBaristaModelStatus(
-                    "Downloading and initializing model...",
-                    "info"
-                );
+                setBaristaModelStatus("Downloading and initializing model...", "info");
 
                 try {
-                    const {
-                        AutoConfig,
-                        AutoModel,
-                        AutoTokenizer
-                    } = await import(TRANSFORMERS_MODULE);
+                    const { AutoConfig, AutoModel, AutoTokenizer } = await import(TRANSFORMERS_MODULE);
 
-                    setBaristaModelStatus(
-                        "Loading model configuration...",
-                        "info"
-                    );
-
-                    const config = await AutoConfig.from_pretrained(
-                        EMBEDDING_MODEL_ID
-                    );
-
-                    // Text-only mode.
+                    setBaristaModelStatus("Loading model configuration...", "info");
+                    const config = await AutoConfig.from_pretrained(EMBEDDING_MODEL_ID);
                     config.vision_config = null;
                     config.audio_config = null;
 
-                    embeddingTokenizer =
-                        await AutoTokenizer.from_pretrained(
-                            EMBEDDING_MODEL_ID
-                        );
+                    embeddingTokenizer = await AutoTokenizer.from_pretrained(EMBEDDING_MODEL_ID);
 
-                    setBaristaModelStatus(
-                        "Downloading model weights...",
-                        "info"
-                    );
+                    setBaristaModelStatus("Downloading model weights...", "info");
+                    embeddingModel = await AutoModel.from_pretrained(EMBEDDING_MODEL_ID, {
+                        config,
+                        device: "webgpu",
+                        dtype: "q4"
+                    });
 
-                    embeddingModel = await AutoModel.from_pretrained(
-                        EMBEDDING_MODEL_ID,
-                        {
-                            config,
-                            device: "webgpu",
-                            dtype: "q4"
-                        }
-                    );
-
-                    setBaristaModelStatus(
-                        "EmbeddingGemma 2 loaded",
-                        "ready"
-                    );
-
-                    // The recommendation logic will be implemented separately.
-                    // Enabling this button is only a UI placeholder for now.
+                    setBaristaModelStatus("EmbeddingGemma 2 loaded", "ready");
                     baristaSuggestButton.disabled = false;
-
                 } catch (error) {
                     embeddingModel = null;
                     embeddingTokenizer = null;
-
-                    console.error(
-                        "EmbeddingGemma 2 load failed:",
-                        error
-                    );
-
-                    setBaristaModelStatus(
-                        `Model loading failed: ${error.message || error}`,
-                        "error"
-                    );
-
+                    console.error("EmbeddingGemma 2 load failed:", error);
+                    setBaristaModelStatus(`Model loading failed: ${error.message || error}`, "error");
                     throw error;
-
                 } finally {
-                    baristaLoadButton.disabled =
-                        !embeddingRuntimeAvailable ||
-                        Boolean(embeddingModel);
-
+                    baristaLoadButton.disabled = !embeddingRuntimeAvailable || Boolean(embeddingModel);
                     modelLoadPromise = null;
                 }
             })();
@@ -1051,7 +1167,25 @@
             return modelLoadPromise;
         }
 
-        async function getEmbedding(prompt) {
+        function l2Normalize(vec) {
+            let norm = 0;
+            for (let i = 0; i < vec.length; i++) {
+                norm += vec[i] * vec[i];
+            }
+            norm = Math.sqrt(norm);
+            if (norm === 0) return vec;
+            return vec.map(v => v / norm);
+        }
+
+        function cosineSimilarity(vecA, vecB) {
+            let dot = 0;
+            for (let i = 0; i < vecA.length; i++) {
+                dot += vecA[i] * vecB[i];
+            }
+            return dot; // vectors are already L2-normalized
+        }
+
+        async function getQueryEmbedding(prompt) {
             if (!embeddingModel || !embeddingTokenizer) {
                 throw new Error("Embedding model is not loaded.");
             }
@@ -1060,29 +1194,95 @@
                 throw new Error("Prompt cannot be empty.");
             }
 
-            const tokens = await embeddingTokenizer([prompt]);
+            const formattedQuery = `task: search result | query: ${prompt.trim()}`;
+            const tokens = await embeddingTokenizer([formattedQuery]);
             const result = await embeddingModel(tokens);
+            const rawVector = result.sentence_embedding.tolist()[0];
+            return l2Normalize(rawVector);
+        }
 
-            return result.sentence_embedding.tolist()[0];
+        async function handleSuggest() {
+            const prompt = baristaInput.value.trim();
+            if (!prompt) return;
+
+            if (!beveragesData.length || !bm25Index) {
+                alert("Beverages dataset or BM25 index not ready yet.");
+                return;
+            }
+
+            baristaSuggestButton.disabled = true;
+            setBaristaModelStatus("Running hybrid semantic + lexical search...", "info");
+
+            try {
+                // 1. Semantic Similarity Scores (0.0 to 1.0)
+                const queryVector = await getQueryEmbedding(prompt);
+                const semanticScores = beveragesData.map(drink =>
+                    cosineSimilarity(queryVector, drink.embeddings)
+                );
+
+                // 2. BM25 Lexical Scores
+                const bm25Scores = bm25Index.score(prompt);
+
+                // 3. Reciprocal Rank Fusion (RRF) for sorting
+                const fusedRankings = reciprocalRankFusion(semanticScores, bm25Scores);
+
+                // Take top 4 results and display their actual semantic similarity score as a percentage
+                const topResults = fusedRankings.slice(0, 4).map(item => {
+                    const drink = beveragesData[item.index];
+                    return {
+                        ...drink,
+                        score: semanticScores[item.index] // Or combine them visually if desired
+                    };
+                });
+
+                renderResults(topResults);
+                setBaristaModelStatus("EmbeddingGemma 2 loaded · Hybrid search active", "ready");
+            } catch (error) {
+                console.error("Hybrid search failed:", error);
+                setBaristaModelStatus(`Search error: ${error.message}`, "error");
+            } finally {
+                baristaSuggestButton.disabled = false;
+            }
+        }
+
+        function renderResults(results) {
+            baristaEmpty.hidden = true;
+            baristaResults.hidden = false;
+            baristaResultsHint.textContent = `Showing top ${results.length} semantic matches`;
+
+            baristaResults.innerHTML = `
+                <div class="barista-result-list">
+                    ${results.map(item => `
+                        <div class="drink-match-card">
+                            <div class="drink-header">
+                                <span class="drink-name">${escapeHTML(item.name)}</span>
+                                <span class="drink-score">Score: ${(item.score * 100).toFixed(1)}%</span>
+                            </div>
+                            <p class="drink-desc">${escapeHTML(item.description)}</p>
+                            <div class="drink-tags">
+                                ${item.ingredients.map(ing => `<span class="drink-tag">${escapeHTML(ing)}</span>`).join("")}
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+            lucide.createIcons();
         }
 
         baristaLoadButton.addEventListener("click", async () => {
             try {
                 await loadEmbeddingModel();
-            } catch {
-                // The loader already updates the status.
-            }
+            } catch { }
         });
 
-        // Recommendation matching is intentionally not implemented yet.
-        // The next step will use the user's description and the coffee dataset
-        // to generate query embeddings and rank candidate drinks.
+        baristaSuggestButton.addEventListener("click", handleSuggest);
 
         async function init() {
             try {
                 await Promise.all([
                     loadProfile(),
-                    loadRepositories()
+                    loadRepositories(),
+                    loadBeverages()
                 ]);
             } catch (error) {
                 container.innerHTML = `
@@ -1090,13 +1290,11 @@
                         ${escapeHTML(error.message)}
                     </div>
                 `;
-
                 console.error(error);
             }
         }
 
         lucide.createIcons();
-
         detectWebGPU();
         init();
 
@@ -1109,7 +1307,6 @@
                 "Deep into a coding session",
                 "Making things work"
             ],
-
             free: [
                 "Enjoying some free time",
                 "Might be playing something",
@@ -1118,7 +1315,6 @@
                 "Enjoying my evening",
                 "Off the clock"
             ],
-
             sleep: [
                 "Probably sleeping...",
                 "Getting some rest",
@@ -1126,7 +1322,6 @@
                 "Recharging for tomorrow",
                 "Offline for the night"
             ],
-
             morning: [
                 "Probably at the gym",
                 "Enjoying the morning",
@@ -1135,7 +1330,6 @@
                 "Getting ready for the day",
                 "Getting some coffee ☕"
             ],
-
             lunch: [
                 "Having lunch",
                 "Taking a lunch break",
@@ -1159,15 +1353,8 @@
             });
 
             const parts = formatter.formatToParts(now);
-
-            const hour = Number(
-                parts.find(p => p.type === "hour").value
-            );
-
-            const minute = Number(
-                parts.find(p => p.type === "minute").value
-            );
-
+            const hour = Number(parts.find(p => p.type === "hour").value);
+            const minute = Number(parts.find(p => p.type === "minute").value);
             const time = hour * 60 + minute;
 
             const brazilTime = new Intl.DateTimeFormat("en-US", {
@@ -1177,14 +1364,12 @@
                 hour12: true
             }).format(now).toLowerCase();
 
-            document.getElementById("brazil-time").textContent =
-                `· ${brazilTime}`;
+            document.getElementById("brazil-time").textContent = `· ${brazilTime}`;
 
             const status = document.getElementById("status");
             const text = document.getElementById("status-text");
 
             let period;
-
             if (time >= 12 * 60 && time <= 13 * 60) {
                 period = "lunch";
             } else if (time >= 9 * 60 && time <= 18 * 60) {
@@ -1199,25 +1384,20 @@
 
             const classes = {
                 work: "work",
-                lunch: "work",
+                lunch: "free",
                 free: "free",
                 sleep: "sleep",
                 morning: "free"
             };
 
             const messages = STATUS_MESSAGES[period];
-
-            const randomMessage = messages[
-                Math.floor(Math.random() * messages.length)
-            ];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
             status.className = `status ${classes[period]}`;
             text.textContent = randomMessage;
         }
 
         updateStatus();
-
-        // Refresh every minute.
         setInterval(updateStatus, 60_000);
     </script>
 </body>
