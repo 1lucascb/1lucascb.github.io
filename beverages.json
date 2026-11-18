@@ -1,0 +1,217 @@
+[
+    {
+        "name": "Classic Cappuccino",
+        "description": "A balanced espresso-based drink with rich coffee flavor, steamed milk, and a thick layer of silky foam.",
+        "ingredients": [
+            "espresso",
+            "steamed milk",
+            "milk foam"
+        ],
+        "scenario": [
+            "Starting a productive morning",
+            "Taking a short coffee break",
+            "Enjoying a classic coffee at a cafe"
+        ],
+        "imagePath": "",
+        "embedding": []
+    },
+    {
+        "name": "Iced Caramel Latte",
+        "description": "A refreshing combination of espresso, cold milk, ice, and sweet caramel syrup.",
+        "ingredients": [
+            "espresso",
+            "cold milk",
+            "caramel syrup",
+            "ice"
+        ],
+        "scenario": [
+            "Cooling down on a hot afternoon",
+            "Enjoying something sweet while working",
+            "Taking a refreshing afternoon break"
+        ]
+    },
+    {
+        "name": "Flat White",
+        "description": "A smooth and velvety espresso drink with finely textured milk and a stronger coffee presence than a traditional latte.",
+        "ingredients": [
+            "double espresso",
+            "steamed milk",
+            "microfoam"
+        ],
+        "scenario": [
+            "Focusing on a demanding task",
+            "Having a quick coffee before work",
+            "Enjoying a balanced coffee without excessive sweetness"
+        ]
+    },
+    {
+        "name": "Mocha",
+        "description": "A comforting blend of espresso, chocolate, and steamed milk, combining rich coffee bitterness with sweet cocoa notes.",
+        "ingredients": [
+            "espresso",
+            "chocolate sauce",
+            "steamed milk",
+            "milk foam"
+        ],
+        "scenario": [
+            "Treating yourself after a long day",
+            "Enjoying dessert in liquid form",
+            "Relaxing on a rainy afternoon"
+        ]
+    },
+    {
+        "name": "Vanilla Latte",
+        "description": "A mellow espresso drink with steamed milk and vanilla syrup, offering a creamy texture and gentle sweetness.",
+        "ingredients": [
+            "espresso",
+            "steamed milk",
+            "vanilla syrup"
+        ],
+        "scenario": [
+            "Enjoying a calm morning",
+            "Working in a cozy environment",
+            "Wanting a sweet but not overwhelming coffee"
+        ]
+    },
+    {
+        "name": "Americano",
+        "description": "Espresso diluted with hot water, producing a clean and approachable coffee with a flavor similar to traditional brewed coffee.",
+        "ingredients": [
+            "espresso",
+            "hot water"
+        ],
+        "scenario": [
+            "Needing a straightforward caffeine boost",
+            "Drinking coffee while reading",
+            "Preferring coffee without milk or sugar"
+        ]
+    },
+    {
+        "name": "Cold Brew",
+        "description": "Coffee slowly steeped in cold water for several hours, resulting in a smooth, naturally sweet drink with low perceived acidity.",
+        "ingredients": [
+            "coarsely ground coffee",
+            "cold water",
+            "ice"
+        ],
+        "scenario": [
+            "Working through a hot summer day",
+            "Enjoying a long afternoon study session",
+            "Wanting a smooth and refreshing caffeine boost"
+        ]
+    },
+    {
+        "name": "Affogato",
+        "description": "A scoop of creamy vanilla ice cream topped with a freshly pulled shot of hot espresso, creating a contrast of temperatures and textures.",
+        "ingredients": [
+            "espresso",
+            "vanilla ice cream"
+        ],
+        "scenario": [
+            "Finishing a nice dinner",
+            "Craving a coffee-based dessert",
+            "Sharing a small indulgence with friends"
+        ]
+    },
+    {
+        "name": "Dirty Chai Latte",
+        "description": "A spiced chai latte enhanced with espresso, combining warm cinnamon and cardamom notes with a bold coffee finish.",
+        "ingredients": [
+            "espresso",
+            "chai concentrate",
+            "steamed milk",
+            "cinnamon"
+        ],
+        "scenario": [
+            "Enjoying a cozy autumn morning",
+            "Wanting something spiced and energizing",
+            "Taking a break during a cold day"
+        ]
+    },
+    {
+        "name": "Coconut Iced Coffee",
+        "description": "A tropical-inspired iced coffee combining bold brewed coffee with creamy coconut milk and a subtle natural sweetness.",
+        "ingredients": [
+            "brewed coffee",
+            "coconut milk",
+            "ice",
+            "coconut sugar"
+        ],
+        "scenario": [
+            "Relaxing on a warm afternoon",
+            "Looking for a dairy-free coffee option",
+            "Dreaming of a tropical vacation"
+        ]
+    },
+    {
+        "name": "Espresso Tonic",
+        "description": "A refreshing and slightly bitter drink made with espresso poured over tonic water and ice, creating a crisp sparkling coffee experience.",
+        "ingredients": [
+            "espresso",
+            "tonic water",
+            "ice",
+            "lemon peel"
+        ],
+        "scenario": [
+            "Exploring unusual coffee combinations",
+            "Enjoying a refreshing drink outdoors",
+            "Looking for something light and sparkling"
+        ]
+    },
+    {
+        "name": "Honey Cinnamon Latte",
+        "description": "A comforting espresso drink sweetened with honey and finished with cinnamon, offering warm and aromatic flavors.",
+        "ingredients": [
+            "espresso",
+            "steamed milk",
+            "honey",
+            "ground cinnamon"
+        ],
+        "scenario": [
+            "Enjoying a peaceful morning",
+            "Relaxing with a book",
+            "Wanting a naturally sweet and comforting drink"
+        ]
+    },
+    {
+        "name": "Vietnamese Iced Coffee",
+        "description": "Strong coffee brewed through a traditional Vietnamese filter and combined with sweetened condensed milk over ice.",
+        "ingredients": [
+            "strong brewed coffee",
+            "sweetened condensed milk",
+            "ice"
+        ],
+        "scenario": [
+            "Enjoying an intensely flavored coffee",
+            "Cooling off during a hot afternoon",
+            "Craving a rich and sweet caffeine boost"
+        ]
+    },
+    {
+        "name": "Cortado",
+        "description": "A small espresso drink balanced with an approximately equal amount of warm milk, reducing acidity without hiding the coffee flavor.",
+        "ingredients": [
+            "espresso",
+            "warm steamed milk"
+        ],
+        "scenario": [
+            "Taking a quick break between meetings",
+            "Enjoying a small but strong coffee",
+            "Preferring minimal milk and no added sweetness"
+        ]
+    },
+    {
+        "name": "Maple Oat Latte",
+        "description": "A creamy espresso drink made with oat milk and maple syrup, offering a smooth texture and subtle caramel-like sweetness.",
+        "ingredients": [
+            "espresso",
+            "oat milk",
+            "maple syrup"
+        ],
+        "scenario": [
+            "Enjoying a slow weekend morning",
+            "Working from a cozy coffee shop",
+            "Wanting a dairy-free and mildly sweet coffee"
+        ]
+    }
+]
