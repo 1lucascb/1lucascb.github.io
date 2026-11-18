@@ -1337,6 +1337,14 @@
                 "Away for lunch",
                 "Taking a break from coding",
                 "Refueling for the afternoon"
+            ],
+            weekend: [
+                "Touching some grass 🌱",
+                "Enjoying the weekend",
+                "Offline for the weekend",
+                "Out enjoying the fresh air",
+                "Weekend mode activated",
+                "Recharging away from the screen"
             ]
         };
 
@@ -1344,6 +1352,9 @@
             const now = fakeTime
                 ? new Date(`2026-01-01T${fakeTime}:00-03:00`)
                 : new Date();
+
+            const dayOfWeek = now.getDay();
+            const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
 
             const formatter = new Intl.DateTimeFormat("en-US", {
                 timeZone: "America/Sao_Paulo",
@@ -1370,7 +1381,10 @@
             const text = document.getElementById("status-text");
 
             let period;
-            if (time >= 12 * 60 && time <= 13 * 60) {
+
+            if (isWeekend) {
+                period = "weekend";
+            } else if (time >= 12 * 60 && time <= 13 * 60) {
                 period = "lunch";
             } else if (time >= 9 * 60 && time <= 18 * 60) {
                 period = "work";
@@ -1387,7 +1401,8 @@
                 lunch: "free",
                 free: "free",
                 sleep: "sleep",
-                morning: "free"
+                morning: "free",
+                weekend: "sleep" // Uses the gray sleep dot styling
             };
 
             const messages = STATUS_MESSAGES[period];
