@@ -167,8 +167,8 @@
         /* Introduction */
 
         .intro {
-            margin-bottom: 31.5px;
-            max-width: 680px;
+            margin-bottom: 36px;
+            max-width: 720px;
         }
 
         .intro h2 {
@@ -181,6 +181,107 @@
             font-size: 0.95rem;
             line-height: 1.8;
             margin: 0;
+        }
+
+        /* Highlights & Stack */
+
+        .overview-section {
+            margin-bottom: 42px;
+        }
+
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .highlight-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .highlight-card:hover {
+            background: var(--surface-hover);
+            border-color: #484f58;
+        }
+
+        .highlight-top {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .highlight-top svg {
+            width: 17px;
+            height: 17px;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .highlight-desc {
+            margin: 0;
+            font-size: 0.84rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .stack-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stack-row {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .stack-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-width: 145px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .stack-label svg {
+            width: 15px;
+            height: 15px;
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+
+        .stack-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .stack-pill {
+            font-size: 0.76rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 3px 9px;
+            border-radius: 5px;
         }
 
         /* Sections */
@@ -624,6 +725,7 @@
                 justify-content: center;
             }
 
+            .highlights-grid,
             .grid {
                 grid-template-columns: 1fr;
             }
@@ -673,7 +775,7 @@
 
                 <div>
                     <h1>Lucas Barbosa</h1>
-                    <div class="subtitle">Software Engineer</div>
+                    <div class="subtitle">Backend Engineer · Distributed Systems &amp; Applied AI</div>
 
                     <div class="status" id="status">
                         <span class="status-dot"></span>
@@ -684,6 +786,11 @@
             </div>
 
             <nav class="social-links">
+                <a class="social-link" href="mailto:lucascrespibarbosa@gmail.com">
+                    <i data-lucide="mail"></i>
+                    Email
+                </a>
+
                 <a class="social-link" href="https://www.linkedin.com/in/lucas-crespi/" target="_blank"
                     rel="noopener noreferrer">
                     <i data-lucide="linkedin"></i>
@@ -708,11 +815,129 @@
         <section class="intro">
             <h2>About me</h2>
             <p>
-                I'm a software developer interested in backend engineering,
-                distributed systems, cloud infrastructure, and AI-powered
-                applications. I enjoy building tools from scratch and
-                understanding how things work under the hood.
+                Backend engineer focused on microservices, event-driven systems, cloud infrastructure,
+                and AI-powered applications. I like building practical tools from scratch, optimizing
+                data access, and understanding how systems behave under real load.
             </p>
+        </section>
+
+        <!-- Engineering Highlights & Stack -->
+        <section class="overview-section" aria-labelledby="highlights-title">
+            <div class="section-header">
+                <div class="section-title">
+                    <i data-lucide="layers"></i>
+                    <h2 id="highlights-title">Highlights &amp; Stack</h2>
+                </div>
+            </div>
+
+            <div class="highlights-grid">
+                <article class="highlight-card">
+                    <div class="highlight-top">
+                        <i data-lucide="workflow"></i>
+                        <span>Async &amp; Event-Driven Systems</span>
+                    </div>
+                    <p class="highlight-desc">
+                        Queue-backed workers, retry limits, dead-letter queues, message batching,
+                        and service integrations across multi-team workflows.
+                    </p>
+                </article>
+
+                <article class="highlight-card">
+                    <div class="highlight-top">
+                        <i data-lucide="cloud"></i>
+                        <span>AWS &amp; Infrastructure</span>
+                    </div>
+                    <p class="highlight-desc">
+                        Hands-on work with ECS, Lambda, SQS, SNS, S3, RDS, and API Gateway,
+                        paired with Terraform modules, CI/CD, and observability.
+                    </p>
+                </article>
+
+                <article class="highlight-card">
+                    <div class="highlight-top">
+                        <i data-lucide="gauge"></i>
+                        <span>Data &amp; Latency Optimization</span>
+                    </div>
+                    <p class="highlight-desc">
+                        SQL &amp; NoSQL modeling, query tuning, index cleanup, legacy migrations,
+                        and Redis caching to bring slow read paths down into hundreds of milliseconds.
+                    </p>
+                </article>
+
+                <article class="highlight-card">
+                    <div class="highlight-top">
+                        <i data-lucide="bot"></i>
+                        <span>Agents &amp; Retrieval Pipelines</span>
+                    </div>
+                    <p class="highlight-desc">
+                        Tool-calling agents, conversation memory and handoff flows, RAG with vector
+                        stores and re-ranking, hybrid search, and MCP integrations.
+                    </p>
+                </article>
+            </div>
+
+            <div class="stack-panel">
+                <div class="stack-row">
+                    <span class="stack-label">
+                        <i data-lucide="code-2"></i>
+                        Languages
+                    </span>
+                    <div class="stack-pills">
+                        <span class="stack-pill">Python</span>
+                        <span class="stack-pill">Java</span>
+                        <span class="stack-pill">Go</span>
+                    </div>
+                </div>
+
+                <div class="stack-row">
+                    <span class="stack-label">
+                        <i data-lucide="server"></i>
+                        Backend &amp; Data
+                    </span>
+                    <div class="stack-pills">
+                        <span class="stack-pill">FastAPI</span>
+                        <span class="stack-pill">Spring Boot</span>
+                        <span class="stack-pill">PostgreSQL</span>
+                        <span class="stack-pill">MySQL</span>
+                        <span class="stack-pill">MongoDB</span>
+                        <span class="stack-pill">DocumentDB</span>
+                        <span class="stack-pill">Redis</span>
+                    </div>
+                </div>
+
+                <div class="stack-row">
+                    <span class="stack-label">
+                        <i data-lucide="cloud-cog"></i>
+                        Cloud &amp; Ops
+                    </span>
+                    <div class="stack-pills">
+                        <span class="stack-pill">AWS</span>
+                        <span class="stack-pill">Terraform</span>
+                        <span class="stack-pill">Docker</span>
+                        <span class="stack-pill">GitHub Actions</span>
+                        <span class="stack-pill">GitLab CI</span>
+                        <span class="stack-pill">Linux</span>
+                        <span class="stack-pill">DataDog</span>
+                        <span class="stack-pill">Grafana</span>
+                    </div>
+                </div>
+
+                <div class="stack-row">
+                    <span class="stack-label">
+                        <i data-lucide="sparkles"></i>
+                        Applied AI
+                    </span>
+                    <div class="stack-pills">
+                        <span class="stack-pill">AWS Bedrock</span>
+                        <span class="stack-pill">OpenAI API</span>
+                        <span class="stack-pill">Agno</span>
+                        <span class="stack-pill">RAG</span>
+                        <span class="stack-pill">Qdrant</span>
+                        <span class="stack-pill">ChromaDB</span>
+                        <span class="stack-pill">FastMCP</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Repositories -->
