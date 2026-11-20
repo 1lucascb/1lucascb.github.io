@@ -704,6 +704,115 @@
             color: var(--accent);
         }
 
+        /* Resume language dialog */
+
+        .resume-dialog {
+            width: min(400px, calc(100% - 32px));
+            padding: 24px;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        }
+
+        .resume-dialog::backdrop {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(3px);
+        }
+
+        .resume-dialog-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .resume-dialog h2 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .resume-dialog-description {
+            margin: 0 0 20px;
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        .resume-dialog-close {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            color: var(--muted);
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .resume-dialog-close:hover {
+            color: var(--text);
+            border-color: var(--accent);
+        }
+
+        .resume-language-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .resume-language-option {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            width: 100%;
+            padding: 13px 14px;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: left;
+            transition: 0.2s;
+        }
+
+        .resume-language-option:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+        }
+
+        .resume-language-option img {
+            width: 32px;
+            height: 22px;
+            object-fit: cover;
+            border-radius: 3px;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+        }
+
+        .resume-language-option span {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .resume-language-option strong {
+            font-size: 0.9rem;
+        }
+
+        .resume-language-option small {
+            color: var(--muted);
+            font-size: 0.76rem;
+        }
+
+        .resume-language-option i {
+            width: 16px;
+            height: 16px;
+            margin-left: auto;
+            color: var(--muted);
+        }
+
         /* Responsive */
 
         @media (max-width: 700px) {
@@ -798,7 +907,8 @@
                     <i data-lucide="external-link"></i>
                 </a>
 
-                <a class="social-link" href="resumes/Lucas_Barbosa_Resume-EN.pdf" download>
+                <a class="social-link" href="#resume-dialog" id="resume-link" aria-haspopup="dialog"
+                    aria-controls="resume-dialog">
                     <i data-lucide="file-down"></i>
                     Resume
                 </a>
@@ -810,6 +920,37 @@
                 </a>
             </nav>
         </header>
+
+        <dialog class="resume-dialog" id="resume-dialog" aria-labelledby="resume-dialog-title">
+            <div class="resume-dialog-header">
+                <h2 id="resume-dialog-title">Choose your resume</h2>
+                <button class="resume-dialog-close" id="resume-dialog-close" type="button"
+                    aria-label="Close dialog">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <p class="resume-dialog-description">Select the language you'd like to read.</p>
+
+            <div class="resume-language-options">
+                <a class="resume-language-option" href="resumes/Lucas_Barbosa_Resume-EN.pdf" download>
+                    <img src="https://flagcdn.com/w40/us.png" alt="United States flag">
+                    <span>
+                        <strong>English</strong>
+                        <small>English version</small>
+                    </span>
+                    <i data-lucide="download"></i>
+                </a>
+
+                <a class="resume-language-option" href="resumes/Lucas_Barbosa_Resume-PT-BR.pdf" download>
+                    <img src="https://flagcdn.com/w40/br.png" alt="Brazilian flag">
+                    <span>
+                        <strong>Português</strong>
+                        <small>Versão em português</small>
+                    </span>
+                    <i data-lucide="download"></i>
+                </a>
+            </div>
+        </dialog>
 
         <!-- About -->
         <section class="intro">
@@ -1296,6 +1437,30 @@
         }
 
         search.addEventListener("input", render);
+
+        // Resume language selection
+        const resumeLink = document.getElementById("resume-link");
+        const resumeDialog = document.getElementById("resume-dialog");
+        const resumeDialogClose = document.getElementById("resume-dialog-close");
+
+        resumeLink.addEventListener("click", event => {
+            event.preventDefault();
+            resumeDialog.showModal();
+        });
+
+        resumeDialogClose.addEventListener("click", () => {
+            resumeDialog.close();
+        });
+
+        resumeDialog.addEventListener("click", event => {
+            if (event.target === resumeDialog) {
+                resumeDialog.close();
+            }
+        });
+
+        resumeDialog.querySelectorAll(".resume-language-option").forEach(link => {
+            link.addEventListener("click", () => resumeDialog.close());
+        });
 
         // EmbeddingGemma 2 browser inference & semantic search
         const EMBEDDING_MODEL_ID = "onnx-community/embeddinggemma-2-ONNX";
