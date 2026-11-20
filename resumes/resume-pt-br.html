@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lucas Crespi Barbosa - Engenheiro Backend</title>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm 15mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #1a202c;
+            background: #ffffff;
+            line-height: 1.45;
+            font-size: 10.5px;
+            padding: 20px 30px;
+        }
+
+        /* Estilização do cabeçalho */
+        header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            font-weight: 600;
+            color: #222;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .contact-info {
+            font-size: 10px;
+            color: #475569;
+            word-spacing: 1px;
+        }
+
+        .contact-info a {
+            font-weight: 600;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .separator {
+            color: #cbd5e1;
+            margin: 0 4px;
+        }
+
+        /* Layout das seções */
+        .section {
+            margin-bottom: 14px;
+        }
+
+        h2 {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #0f172a;
+            border-bottom: 1.5px solid #0f172a;
+            padding-bottom: 3px;
+            margin-bottom: 8px;
+        }
+
+        h3 {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+        }
+
+        .meta {
+            font-size: 10px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        /* Listas e tipografia */
+        ul {
+            list-style-type: disc;
+            padding-left: 16px;
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+
+        li {
+            font-size: 10.5px;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+
+        p {
+            font-size: 10.5px;
+            color: #334155;
+        }
+
+        .skills-grid p {
+            line-height: 1.6;
+        }
+
+        .highlight {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .project-block {
+            margin-bottom: 8px;
+        }
+
+        .project-block h3 {
+            margin-bottom: 2px;
+        }
+
+        .education-item {
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Lucas Crespi Barbosa</h1>
+        <div class="subtitle">Engenheiro Backend • Sistemas Distribuídos e Arquitetura Orientada a Eventos</div>
+        <div class="contact-info">
+            Brasil (UTC-3) <span class="separator">•</span>
+            +55 14 99900-0903 <span class="separator">•</span>
+            lucascrespibarbosa@gmail.com <span class="separator">•</span>
+            <a href="https://github.com/1lucascb">github.com/1lucascb</a> <span class="separator">•</span>
+            <a href="https://www.linkedin.com/in/lucas-crespi/">linkedin.com/in/lucas-crespi</a>
+        </div>
+    </header>
+
+    <div class="section skills-grid">
+        <h2>Habilidades Técnicas</h2>
+        <p>
+            <span class="highlight">Linguagens:</span> Python, Java, Go<br>
+            <span class="highlight">Backend:</span> FastAPI, Spring Boot, APIs REST, Microsserviços, Arquitetura Orientada a Eventos, Arquitetura Limpa, DDD, Testes automatizados<br>
+            <span class="highlight">Bancos de dados:</span> PostgreSQL, MySQL, MongoDB, DocumentDB, Redis, Otimização de consultas<br>
+            <span class="highlight">AWS e Infraestrutura:</span> RDS, ECS, Lambda, SQS, SNS, SES, S3, API Gateway, CloudWatch, Terraform<br>
+            <span class="highlight">DevOps e Observabilidade:</span> Docker, CI/CD (GitHub Actions, GitLab), Linux, DataDog, Grafana<br>
+            <span class="highlight">IA Aplicada:</span> AWS Bedrock, OpenAI API, Agno Framework, RAG, Bancos de dados vetoriais (Qdrant, ChromaDB), FastMCP, Sistemas agênticos<br>
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Experiência Profissional</h2>
+
+        <div class="role-header">
+            <h3>GFT Technologies (cliente: grande banco latino-americano)</h3>
+            <span class="meta">Engenheiro Backend Pleno • Maio de 2026 – Atual</span>
+        </div>
+        <ul>
+            <li>
+                <span class="highlight">Plataforma de Fluxo de Crédito Corporativo:</span> Evolução do mecanismo central de fluxo de trabalho para propostas de crédito de empresas de médio porte, com APIs Spring Boot e AWS Lambdas em Python integrando sistemas mainframe e serviços legados mantidos por múltiplas equipes.
+            </li>
+            <li>
+                <span class="highlight">Plataforma Centralizada de Análise de Crédito:</span> Desenvolvimento de APIs REST que permitem aos usuários organizar e favoritar microfrontends em uma plataforma que consolida cerca de 10 sistemas internos do departamento comercial do banco. As APIs foram expostas por meio do AWS API Gateway, configurado com especificações OpenAPI.
+            </li>
+            <li>
+                <span class="highlight">Infraestrutura como Código e Observabilidade:</span> Provisionamento de clusters RDS e recursos do API Gateway utilizando módulos Terraform padronizados por meio de pipelines de CI/CD. Criação de dashboards no DataDog com métricas personalizadas para melhorar a observabilidade dos serviços.
+            </li>
+        </ul>
+
+        <div class="role-header">
+            <h3>Fullcond - Plataforma Web de Gestão Condominial</h3>
+            <span class="meta">Engenheiro Backend Python • Abril de 2023 – Abril de 2026</span>
+        </div>
+        <ul>
+            <li>
+                <span class="highlight">Agente de Suporte com IA:</span> Desenvolvimento de um agente de suporte para WhatsApp orientado a eventos, utilizando AWS Bedrock, SQS, ECS e MongoDB, implementando agrupamento de mensagens com lógica de debounce, memória de conversação, chamadas a ferramentas por meio de APIs internas e transferência para atendimento humano com contexto da conversa.
+            </li>
+            <li>
+                <span class="highlight">Processamento Assíncrono:</span> Manutenção de consumidores em Go que processavam notificações de e-mail, SNS e Firebase a partir de filas SQS. Implementação de controle de tentativas com Redis, com limite de três tentativas, utilizando timeouts de visibilidade do SQS (cerca de 15 segundos) entre as tentativas de processamento e filas de mensagens não processadas (DLQs) para investigação de falhas.
+            </li>
+            <li>
+                <span class="highlight">Cache:</span> Redução da latência de endpoints com alta demanda de leitura e grandes payloads aninhados de 3–6 segundos para 200–300 ms utilizando Redis.
+            </li>
+            <li>
+                <span class="highlight">Migração de Sistemas Legados:</span> Análise de um serviço legado em .NET (Entity Framework) e reescrita em Python/FastAPI, eliminando padrões de consultas N+1, adicionando índices ausentes e executando migrações do banco de dados em produção durante a transição.
+            </li>
+            <li>
+                <span class="highlight">Serviços e Entrega:</span> Desenvolvimento de microsserviços RESTful com Python e FastAPI na AWS (RDS, ECS, SQS, SNS, SES, S3), com CI/CD via GitLab, pytest e implantações automatizadas no ECS.
+            </li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Projetos Relevantes de IA e Engenharia</h2>
+
+        <div class="project-block">
+            <h3>Tiny Agent Framework (Python)</h3>
+            <ul>
+                <li>
+                    Framework open source leve para construção de agentes de IA, com execução dinâmica de ferramentas, injeção de dependências e isolamento de contexto.
+                    (<a href="https://github.com/1lucascb/tiny-agent-framework">github.com/1lucascb/tiny-agent-framework</a>)
+                </li>
+            </ul>
+        </div>
+
+        <div class="project-block">
+            <h3>Experimentos com RAG, MCP e Fala</h3>
+            <ul>
+                <li>
+                    Pipelines de RAG com ChromaDB e Qdrant, utilizando reclassificação de resultados e transformação de consultas; servidores MCP desenvolvidos com FastMCP e APIs da OpenAI; e experimentos com transcrição de fala em tempo real utilizando Whisper.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Formação Acadêmica</h2>
+        <div class="education-item">
+            <div class="role-header">
+                <h3>Agentes para Tudo: LLM, LangChain e Sistemas Multiagentes com RAG</h3>
+                <span class="meta">CCEC - PUC-Rio • Jan. de 2026 – Abr. de 2026</span>
+            </div>
+        </div>
+        <div class="education-item">
+            <div class="role-header">
+                <h3>Análise e Desenvolvimento de Sistemas</h3>
+                <span class="meta">FATEC Garça • Fev. de 2024 – Dez. de 2025</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lucas Crespi Barbosa - Backend Engineer</title>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm 15mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #1a202c;
+            background: #ffffff;
+            line-height: 1.45;
+            font-size: 10.5px;
+            padding: 20px 30px;
+        }
+
+        /* Header Styling */
+        header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            font-weight: 600;
+            color: #222;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .contact-info {
+            font-size: 10px;
+            color: #475569;
+            word-spacing: 1px;
+        }
+
+        .contact-info a {
+            font-weight: 600;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .separator {
+            color: #cbd5e1;
+            margin: 0 4px;
+        }
+
+        /* Section Layout */
+        .section {
+            margin-bottom: 14px;
+        }
+
+        h2 {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #0f172a;
+            border-bottom: 1.5px solid #0f172a;
+            padding-bottom: 3px;
+            margin-bottom: 8px;
+        }
+
+        h3 {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+        }
+
+        .meta {
+            font-size: 10px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        /* Lists & Typography */
+        ul {
+            list-style-type: disc;
+            padding-left: 16px;
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+
+        li {
+            font-size: 10.5px;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+
+        p {
+            font-size: 10.5px;
+            color: #334155;
+        }
+
+        .skills-grid p {
+            line-height: 1.6;
+        }
+
+        .highlight {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .project-block {
+            margin-bottom: 8px;
+        }
+
+        .project-block h3 {
+            margin-bottom: 2px;
+        }
+
+        .education-item {
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Lucas Crespi Barbosa</h1>
+        <div class="subtitle">Backend Engineer • Distributed Systems & Event-Driven Architecture</div>
+        <div class="contact-info">
+            Brazil (UTC-3) <span class="separator">•</span>
+            +55 14 99900-0903 <span class="separator">•</span>
+            lucascrespibarbosa@gmail.com <span class="separator">•</span>
+            <a href="https://github.com/1lucascb">github.com/1lucascb</a> <span class="separator">•</span>
+            <a href="https://www.linkedin.com/in/lucas-crespi/">linkedin.com/in/lucas-crespi</a>
+        </div>
+    </header>
+
+    <div class="section skills-grid">
+        <h2>Technical Skills</h2>
+        <p>
+            <span class="highlight">Languages:</span> Python, Java, Go<br>
+            <span class="highlight">Backend:</span> FastAPI, Spring Boot, REST APIs, Microservices, Event-Driven
+            Architecture, Clean Architecture, DDD, Automated tests<br>
+            <span class="highlight">Databases:</span> PostgreSQL, MySQL, MongoDB, DocumentDB, Redis, Query
+            Optimization<br>
+            <span class="highlight">AWS & Infrastructure:</span> RDS, ECS, Lambda, SQS, SNS, SES, S3, API Gateway,
+            CloudWatch, Terraform<br>
+            <span class="highlight">DevOps & Observability:</span> Docker, CI/CD (GitHub Actions, GitLab), Linux,
+            DataDog, Grafana<br>
+            <span class="highlight">Applied AI:</span> AWS Bedrock, OpenAI API, Agno Framework, RAG, Vector Databases (Qdrant, ChromaDB),
+            FastMCP, Agentic Systems, GitHub Copilot, Codex<br>
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Professional Experience</h2>
+
+        <div class="role-header">
+            <h3>GFT Technologies (client: major Latin American bank)</h3>
+            <span class="meta">Mid-level Backend Engineer • May 2026 - Present</span>
+        </div>
+        <ul>
+            <li>
+                <span class="highlight">Corporate Credit Workflow Platform:</span> Evolving the core workflow engine for
+                mid-sized company credit proposals, with Spring Boot APIs and Python AWS Lambdas integrating mainframe
+                systems and legacy services owned by multiple teams.
+            </li>
+            <li>
+                <span class="highlight">Centralized Credit Analysis Platform:</span> Developed REST APIs allowing users to organize and favorite micro-frontends within a platform consolidating ~10 internal systems for the bank’s commercial department. The APIs were exposed through AWS API Gateway configured via OpenAPI specifications
+            </li>
+            <li>
+                <span class="highlight">IaC & Observability:</span> Provisioned RDS clusters and API Gateway resources using standardized Terraform modules through CI/CD pipelines. Built DataDog dashboards with custom metrics to improve service observability.
+            </li>
+        </ul>
+        <div class="role-header">
+            <h3>Fullcond - Condominium Management Web Platform</h3>
+            <span class="meta">Python Backend Engineer • April 2023 - April 2026</span>
+        </div>
+        <ul>
+            <li>
+                <span class="highlight">AI Support Agent:</span> Built an event-driven WhatsApp support agent using AWS Bedrock, SQS, ECS, and MongoDB, implementing message batching with debounce logic, conversation memory, internal API tool calls, and human handoff with conversation context.
+            </li>
+            <li>
+                <span class="highlight">Async Processing:</span> Maintained Go consumers processing email, SNS, and Firebase push notifications from SQS queues. Implemented Redis-backed retry tracking with a three-attempt limit, leveraging SQS visibility timeouts (~15 seconds) between processing attempts, with dead-letter queues for failed-message investigation.
+            </li>
+            <li>
+                <span class="highlight">Caching:</span> Cut latency of read-heavy endpoints with large nested
+                payloads from 3-6s to 200-300 ms using Redis.
+            </li>
+            <li>
+                <span class="highlight">Legacy Migration:</span> Analyzed a legacy .NET service (Entity Framework) and rewrote it in Python/FastAPI, eliminating N+1 query patterns, adding missing indexes, and running production database migrations during the cutover.
+            </li>
+            <li>
+                <span class="highlight">Services & Delivery:</span> Built RESTful microservices with Python and FastAPI
+                on AWS (RDS, ECS, SQS, SNS, SES, S3), with CI/CD via GitLab, pytest, and automated
+                ECS deployments.
+            </li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Relevant AI & Engineering Projects</h2>
+
+        <div class="project-block">
+            <h3>graph-lcb — Agent-First Knowledge Graph CLI (Python)</h3>
+            <ul>
+                <li>
+                    Designed and published an open-source, JSON-backed knowledge graph CLI
+                    built for AI agents, featuring customizable entity and edge contracts,
+                    typed properties, and graph integrity validation.
+                </li>
+                <li>
+                    Implemented graph querying, filtering, evidence tracking, JSONL imports,
+                    dry-run validation, and graph diagnostics.
+                    Designed an agent-oriented workflow for incrementally building and
+                    querying structured knowledge bases.
+                    (<a href="https://github.com/1lucascb/graph-lcb">GitHub</a>)
+                </li>
+            </ul>
+        </div>
+
+        <div class="project-block">
+            <h3>Tiny Agent Framework (Python)</h3>
+            <ul>
+                <li>
+                    Open-source lightweight framework for building AI agents, with dynamic tool execution, dependency
+                    injection and context isolation.
+                    (<a href="https://github.com/1lucascb/tiny-agent-framework">github.com/1lucascb/tiny-agent-framework</a>)
+                </li>
+            </ul>
+        </div>
+
+        <div class="project-block">
+            <h3>RAG, MCP & Speech Experiments</h3>
+            <ul>
+                <li>
+                    RAG pipelines on ChromaDB and Qdrant with re-ranking and query transformation, MCP servers built
+                    with FastMCP and OpenAI APIs, and real-time speech transcription experiments with Whisper.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Education</h2>
+        <div class="education-item">
+            <div class="role-header">
+                <h3>Agents for Everything: LLM, LangChain, RAG Multiagent Systems</h3>
+                <span class="meta">CCEC - PUC-Rio • Jan 2026 - Apr 2026</span>
+            </div>
+        </div>
+        <div class="education-item">
+            <div class="role-header">
+                <h3>Software Analysis and Development</h3>
+                <span class="meta">FATEC Garça • Feb 2024 - Dec 2025</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

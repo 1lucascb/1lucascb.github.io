@@ -1,0 +1,147 @@
+
+name: Generate Resume PDFs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'resumes/resume-en.html'
+      - 'resumes/resume-pt-br.html'
+      - '.github/workflows/generate-pdf.yml'
+
+  workflow_dispatch:
+    inputs:
+      html_file:
+        description: 'Resume to generate'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - resume-en.html
+          - resume-pt-br.html
+      scale:
+        description: 'PDF scale (0.1 to 2.0)'
+        required: true
+        default: '1.0'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  generate-pdf:
+    runs-on: ubuntu-latest
+
+    env:
+      PDF_SCALE: ${{ inputs.scale || '1.0' }}
+      HTML_FILE: ${{ inputs.html_file || 'all' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright and Chromium
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Generate PDFs
+        run: |
+          python - <<'PY'
+          import os
+          import subprocess
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+
+          repo_root = Path.cwd().resolve()
+          resumes_dir = repo_root / "resumes"
+
+          resumes = {
+              "resume-en.html": "Lucas_Barbosa_Resume-EN.pdf",
+              "resume-pt-br.html": "Lucas_Barbosa_Resume-PT-BR.pdf",
+          }
+
+          selected = os.environ["HTML_FILE"]
+
+          if selected == "all":
+              files = list(resumes.keys())
+          elif selected in resumes:
+              files = [selected]
+          elif os.environ.get("GITHUB_EVENT_NAME") == "push":
+              changed = subprocess.check_output(
+                  ["git", "diff", "--name-only", "HEAD^", "HEAD"],
+                  text=True,
+              ).splitlines()
+
+              files = [
+                  name for name in resumes
+                  if f"resumes/{name}" in changed
+              ]
+          else:
+              raise SystemExit(f"Unsupported resume: {selected}")
+
+          try:
+              scale = float(os.environ["PDF_SCALE"])
+          except ValueError as exc:
+              raise SystemExit("PDF scale must be a number between 0.1 and 2.0.") from exc
+
+          if not 0.1 <= scale <= 2.0:
+              raise SystemExit("PDF scale must be between 0.1 and 2.0.")
+
+          if not files:
+              print("No resume changes detected.")
+              raise SystemExit(0)
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+
+              try:
+                  page = browser.new_page()
+
+                  for filename in files:
+                      html_file = resumes_dir / filename
+
+                      if not html_file.is_file():
+                          raise SystemExit(f"File not found: {html_file}")
+
+                      output_pdf = resumes_dir / resumes[filename]
+
+                      page.goto(html_file.as_uri(), wait_until="load")
+                      page.evaluate("() => document.fonts.ready.then(() => true)")
+
+                      page.pdf(
+                          path=str(output_pdf),
+                          format="A4",
+                          scale=scale,
+                          print_background=True,
+                          display_header_footer=False,
+                          prefer_css_page_size=True,
+                      )
+
+                      print(f"Generated: {output_pdf}")
+
+              finally:
+                  browser.close()
+          PY
+
+      - name: Commit updated PDFs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add resumes/*.pdf
+
+          if git diff --cached --quiet; then
+            echo "PDFs unchanged; nothing to commit."
+          else
+            git commit -m "Update generated resume PDFs"
+            git push
+          fi
